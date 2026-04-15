@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SentinelMail · Dead Man Switch</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;700;900&family=Lora:ital,wght@0,400;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #080c10;
+  --s1: #0d1219;
+  --s2: #111820;
+  --border: #1a2230;
+  --border2: #243040;
+  --cyan: #00e5cc;
+  --cyan-dim: rgba(0,229,204,0.08);
+  --cyan-glow: rgba(0,229,204,0.15);
+  --amber: #ffaa00;
+  --amber-dim: rgba(255,170,0,0.08);
+  --red: #ff3a3a;
+  --red-dim: rgba(255,58,58,0.08);
+  --green: #00e584;
+  --green-dim: rgba(0,229,132,0.08);
+  --text: #c8d8e8;
+  --muted: #4a6070;
+  --muted2: #2a3a48;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scanline effect */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* Glow bg */
+body::before {
+  content: '';
+  position: fixed;
+  top: -200px; left: 50%;
+  transform: translateX(-50%);
+  width: 600px; height: 400px;
+  background: radial-gradient(ellipse, rgba(0,229,204,0.04) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+* { position: relative; z-index: 1; }
+
+/* ── TOPO ── */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 32px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(8,12,16,0.95);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-mark {
+  width: 28px; height: 28px;
+  border: 1.5px solid var(--cyan);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--cyan);
+  animation: pulse-border 3s ease-in-out infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,229,204,0.3); }
+  50% { box-shadow: 0 0 0 6px rgba(0,229,204,0); }
+}
+
+.logo-name {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.05em;
+}
+
+.logo-name span { color: var(--cyan); }
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--green);
+}
+
+.status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: blink 2s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ── HERO ── */
+.hero {
+  padding: 56px 32px 40px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-kicker {
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.hero-kicker::before, .hero-kicker::after {
+  content: '';
+  width: 32px; height: 1px;
+  background: var(--cyan);
+  opacity: 0.4;
+}
+
+h1 {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(28px, 4.5vw, 52px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+  color: #e8f4ff;
+}
+
+h1 .hl { color: var(--cyan); }
+
+.hero-sub {
+  font-family: 'Lora', serif;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--muted);
+  max-width: 480px;
+  margin: 0 auto 32px;
+  line-height: 1.7;
+}
+
+/* Countdown ring */
+.countdown-ring {
+  width: 140px; height: 140px;
+  margin: 0 auto 32px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ring-svg {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+}
+
+.ring-bg { fill: none; stroke: var(--border2); stroke-width: 3; }
+.ring-fill {
+  fill: none;
+  stroke: var(--cyan);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 408;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.5s ease, stroke 0.5s ease;
+  filter: drop-shadow(0 0 4px rgba(0,229,204,0.5));
+}
+
+.ring-center {
+  text-align: center;
+  z-index: 2;
+}
+
+.ring-days {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--cyan);
+  display: block;
+  line-height: 1;
+}
+
+.ring-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  margin-top: 4px;
+  display: block;
+}
+
+/* ALIVE button */
+.alive-btn {
+  background: none;
+  border: 1.5px solid var(--green);
+  color: var(--green);
+  font-family: 'Unbounded', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 14px 32px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 auto;
+}
+
+.alive-btn:hover {
+  background: var(--green-dim);
+  box-shadow: 0 0 20px rgba(0,229,132,0.2);
+}
+
+.alive-btn:active { transform: scale(0.97); }
+
+/* ── MAIN LAYOUT ── */
+.main {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  min-height: 60vh;
+}
+
+.left { border-right: 1px solid var(--border); padding: 32px; }
+.right { padding: 28px 24px; }
+
+/* Section headers */
+.sec-head {
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sec-head::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* Timeline de mensagens */
+.timeline { display: flex; flex-direction: column; gap: 10px; }
+
+.msg-card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+  animation: slideIn 0.3s ease both;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.msg-card:hover { border-color: var(--border2); }
+.msg-card.active { border-color: var(--cyan); }
+.msg-card.triggered { border-color: var(--amber); }
+
+.msg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  cursor: pointer;
+  gap: 12px;
+}
+
+.msg-left { display: flex; align-items: center; gap: 12px; }
+
+.msg-step {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Unbounded', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.msg-card.active .msg-step {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  box-shadow: 0 0 8px rgba(0,229,204,0.2);
+}
+
+.msg-card.triggered .msg-step {
+  border-color: var(--amber);
+  color: var(--amber);
+  background: var(--amber-dim);
+}
+
+.msg-info {}
+.msg-delay {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.msg-recipient { font-size: 10px; color: var(--muted); }
+
+.msg-badge {
+  font-size: 9px;
+  padding: 3px 10px;
+  border-radius: 100px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-wait { background: var(--muted2); color: var(--muted); }
+.badge-next { background: var(--cyan-dim); color: var(--cyan); border: 1px solid rgba(0,229,204,0.2); }
+.badge-sent { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(255,170,0,0.2); }
+
+.msg-body {
+  display: none;
+  padding: 0 16px 14px 56px;
+}
+
+.msg-body.open { display: block; }
+
+.msg-subject {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+  padding-top: 4px;
+}
+
+.msg-preview {
+  font-family: 'Lora', serif;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--muted);
+  line-height: 1.7;
+  border-left: 2px solid var(--border2);
+  padding-left: 12px;
+  margin-bottom: 10px;
+}
+
+.msg-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.mini-btn {
+  background: none;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 5px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.mini-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.mini-btn.primary { border-color: var(--cyan); color: var(--cyan); }
+
+/* Add message */
+.add-msg {
+  background: none;
+  border: 1px dashed var(--border2);
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  margin-top: 10px;
+}
+.add-msg:hover { border-color: var(--cyan); color: var(--cyan); }
+
+/* ── SIDEBAR ── */
+.sb-block { margin-bottom: 26px; }
+
+.sb-title {
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Ping log */
+.ping-log { display: flex; flex-direction: column; gap: 6px; }
+
+.ping-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 10px;
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 10px;
+}
+
+.ping-date { color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+.ping-status { color: var(--green); font-weight: 500; }
+.ping-status.miss { color: var(--red); }
+
+/* Config items */
+.cfg-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(26,34,48,0.8);
+  font-size: 11px;
+}
+.cfg-item:last-child { border-bottom: none; }
+.cfg-key { color: var(--muted); }
+.cfg-val { color: var(--text); font-weight: 500; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+.cfg-val.cyan { color: var(--cyan); }
+.cfg-val.green { color: var(--green); }
+.cfg-val.amber { color: var(--amber); }
+
+/* Toggle */
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(26,34,48,0.8);
+}
+.toggle-row:last-child { border-bottom: none; }
+.toggle-label { font-size: 11px; color: var(--muted); }
+
+.toggle {
+  width: 32px; height: 18px;
+  background: var(--border2);
+  border-radius: 9px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.toggle.on { background: var(--cyan); }
+.toggle::after {
+  content: '';
+  position: absolute;
+  width: 12px; height: 12px;
+  background: #fff;
+  border-radius: 50%;
+  top: 3px; left: 3px;
+  transition: transform 0.2s;
+}
+.toggle.on::after { transform: translateX(14px); }
+
+/* Alert box */
+.alert-dms {
+  background: var(--amber-dim);
+  border: 1px solid rgba(255,170,0,0.2);
+  border-radius: 5px;
+  padding: 12px 14px;
+  font-size: 11px;
+  line-height: 1.65;
+  color: var(--text);
+}
+.alert-dms strong { color: var(--amber); display: block; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 4px; }
+
+/* Modal overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8,12,16,0.9);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.overlay.open { display: flex; }
+
+.modal {
+  background: var(--s1);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 32px;
+  width: 90%;
+  max-width: 460px;
+  animation: modalIn 0.2s ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.modal-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--green);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 24px;
+  line-height: 1.7;
+}
+
+.modal-timer {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 40px;
+  font-weight: 900;
+  color: var(--green);
+  text-align: center;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.modal-timer-label {
+  font-size: 10px;
+  text-align: center;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 24px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.modal-btn {
+  width: 100%;
+  background: var(--green);
+  color: var(--bg);
+  border: none;
+  font-family: 'Unbounded', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 10px;
+}
+.modal-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+.modal-cancel {
+  width: 100%;
+  background: none;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.modal-cancel:hover { border-color: var(--red); color: var(--red); }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--green);
+  color: var(--bg);
+  font-family: 'Unbounded', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 4px;
+  z-index: 300;
+  transition: transform 0.3s ease;
+  letter-spacing: 0.05em;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* Footer */
+footer {
+  padding: 16px 32px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media(max-width: 720px) {
+  .main { grid-template-columns: 1fr; }
+  .right { border-top: 1px solid var(--border); }
+  .topbar, .hero, .left, .right, footer { padding-left: 20px; padding-right: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-mark">◉</div>
+    <div class="logo-name">Sentinel<span>Mail</span></div>
+  </div>
+  <div style="display:flex; align-items:center; gap:16px">
+    <div class="status-indicator">
+      <div class="status-dot"></div>
+      Sistema ativo
+    </div>
+    <div style="font-size:10px; color:var(--muted); border:1px solid var(--border); padding:4px 12px; border-radius:3px; cursor:pointer" onclick="openModal()">
+      ◎ Confirmar presença
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-kicker">Dead Man Switch · Protocolo de Herança Bitcoin</div>
+  <h1>Se você parar de<br>responder — <span class="hl">eles recebem.</span></h1>
+  <p class="hero-sub">Configure mensagens escalonadas para seus herdeiros. O sistema dispara automaticamente se você não confirmar que está vivo.</p>
+
+  <div class="countdown-ring">
+    <svg class="ring-svg" viewBox="0 0 140 140">
+      <circle class="ring-bg" cx="70" cy="70" r="65"/>
+      <circle class="ring-fill" id="ring-fill" cx="70" cy="70" r="65"/>
+    </svg>
+    <div class="ring-center">
+      <span class="ring-days" id="ring-days">87</span>
+      <span class="ring-label">dias restantes</span>
+    </div>
+  </div>
+
+  <button class="alive-btn" onclick="openModal()">
+    ✓ &nbsp;Confirmar que estou vivo
+  </button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- LEFT: Timeline -->
+  <div class="left">
+    <div class="sec-head">Protocolo de mensagens</div>
+
+    <div class="timeline" id="timeline">
+
+      <!-- Msg 1 -->
+      <div class="msg-card active" id="card-1">
+        <div class="msg-header" onclick="toggleCard(1)">
+          <div class="msg-left">
+            <div class="msg-step">1</div>
+            <div class="msg-info">
+              <div class="msg-delay">3 meses sem resposta</div>
+              <div class="msg-recipient">→ Amigos de confiança (3 pessoas)</div>
+            </div>
+          </div>
+          <span class="msg-badge badge-next">Próximo</span>
+        </div>
+        <div class="msg-body open" id="body-1">
+          <div class="msg-subject">Assunto: Alguém viu o [Nome]?</div>
+          <div class="msg-preview">
+            "Este email foi enviado automaticamente porque não obtive confirmação de presença nos últimos 90 dias. Por favor, verifiquem se estou bem. Não é urgência de Bitcoin ainda — é um pedido de investigação. Se confirmarem que estou bem, ignorem. Se não conseguirem me localizar em 7 dias, abram o envelope lacrado que deixei com vocês."
+          </div>
+          <div class="msg-actions">
+            <button class="mini-btn primary">✎ Editar mensagem</button>
+            <button class="mini-btn" onclick="addRecipient(1)">+ Destinatário</button>
+            <button class="mini-btn">⏱ Alterar prazo</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Msg 2 -->
+      <div class="msg-card" id="card-2">
+        <div class="msg-header" onclick="toggleCard(2)">
+          <div class="msg-left">
+            <div class="msg-step">2</div>
+            <div class="msg-info">
+              <div class="msg-delay">6 meses sem resposta</div>
+              <div class="msg-recipient">→ Cônjuge / Parceiro(a)</div>
+            </div>
+          </div>
+          <span class="msg-badge badge-wait">Aguardando</span>
+        </div>
+        <div class="msg-body" id="body-2">
+          <div class="msg-subject">Assunto: Instruções — Parte 1 das chaves</div>
+          <div class="msg-preview">
+            "Se você está lendo isso, significa que não estou mais aqui ou estou impossibilitado. No cofre da sala há um envelope vermelho com a primeira parte das instruções. Não abra antes de ler este email completo. As chaves estão divididas em dois locais..."
+          </div>
+          <div class="msg-actions">
+            <button class="mini-btn primary">✎ Editar mensagem</button>
+            <button class="mini-btn">+ Destinatário</button>
+            <button class="mini-btn">⏱ Alterar prazo</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Msg 3 -->
+      <div class="msg-card" id="card-3">
+        <div class="msg-header" onclick="toggleCard(3)">
+          <div class="msg-left">
+            <div class="msg-step">3</div>
+            <div class="msg-info">
+              <div class="msg-delay">12 meses sem resposta</div>
+              <div class="msg-recipient">→ Cônjuge + Advogado</div>
+            </div>
+          </div>
+          <span class="msg-badge badge-wait">Aguardando</span>
+        </div>
+        <div class="msg-body" id="body-3">
+          <div class="msg-subject">Assunto: Protocolo completo de herança Bitcoin</div>
+          <div class="msg-preview">
+            "Este é o protocolo completo. A Liana Wallet está configurada com timelock de 12 meses. O advogado Dr. [Nome] tem a segunda assinatura necessária. Para acessar os fundos, siga os passos na ordem: 1. Contate o advogado. 2. Abra o envelope no banco. 3. Conecte o hardware wallet ao computador..."
+          </div>
+          <div class="msg-actions">
+            <button class="mini-btn primary">✎ Editar mensagem</button>
+            <button class="mini-btn">+ Destinatário</button>
+            <button class="mini-btn">⏱ Alterar prazo</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Msg 4 -->
+      <div class="msg-card" id="card-4">
+        <div class="msg-header" onclick="toggleCard(4)">
+          <div class="msg-left">
+            <div class="msg-step">4</div>
+            <div class="msg-info">
+              <div class="msg-delay">24 meses sem resposta</div>
+              <div class="msg-recipient">→ Filhos / Herdeiros secundários</div>
+            </div>
+          </div>
+          <span class="msg-badge badge-wait">Aguardando</span>
+        </div>
+        <div class="msg-body" id="body-4">
+          <div class="msg-subject">Assunto: Para meus filhos — o que deixei para vocês</div>
+          <div class="msg-preview">
+            "Se este email chegou até vocês, já se passaram 2 anos. Espero que tenham seguido o protocolo anterior. Este email contém as instruções finais e o histórico completo de onde estão os ativos restantes. Bitcoin é soberania. Guardem isso..."
+          </div>
+          <div class="msg-actions">
+            <button class="mini-btn primary">✎ Editar mensagem</button>
+            <button class="mini-btn">+ Destinatário</button>
+            <button class="mini-btn">⏱ Alterar prazo</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <button class="add-msg" onclick="addStage()">
+      + Adicionar estágio
+    </button>
+  </div>
+
+  <!-- RIGHT: Sidebar -->
+  <div class="right">
+
+    <div class="sb-block">
+      <div class="sb-title">Histórico de confirmações</div>
+      <div class="ping-log">
+        <div class="ping-item">
+          <span class="ping-date">14 Abr 2026</span>
+          <span class="ping-status">✓ Confirmado</span>
+        </div>
+        <div class="ping-item">
+          <span class="ping-date">14 Jan 2026</span>
+          <span class="ping-status">✓ Confirmado</span>
+        </div>
+        <div class="ping-item">
+          <span class="ping-date">14 Out 2025</span>
+          <span class="ping-status">✓ Confirmado</span>
+        </div>
+        <div class="ping-item">
+          <span class="ping-date">14 Jul 2025</span>
+          <span class="ping-status">✓ Confirmado</span>
+        </div>
+        <div class="ping-item">
+          <span class="ping-date">01 Abr 2025</span>
+          <span class="ping-status miss">✗ Perdido</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sb-block">
+      <div class="sb-title">Configuração do protocolo</div>
+      <div class="cfg-item"><span class="cfg-key">Frequência de ping</span><span class="cfg-val cyan">90 dias</span></div>
+      <div class="cfg-item"><span class="cfg-key">Email de confirmação</span><span class="cfg-val">Gmail principal</span></div>
+      <div class="cfg-item"><span class="cfg-key">Estágios configurados</span><span class="cfg-val green">4 de 4</span></div>
+      <div class="cfg-item"><span class="cfg-key">Próximo ping</span><span class="cfg-val amber">13 Jul 2026</span></div>
+      <div class="cfg-item"><span class="cfg-key">Integração Liana</span><span class="cfg-val green">Ativa ✓</span></div>
+    </div>
+
+    <div class="sb-block">
+      <div class="sb-title">Opções</div>
+      <div class="toggle-row">
+        <span class="toggle-label">Ping por email</span>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="toggle-row">
+        <span class="toggle-label">Ping por SMS</span>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="toggle-row">
+        <span class="toggle-label">Notificar advogado</span>
+        <div class="toggle" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="toggle-row">
+        <span class="toggle-label">Modo silencioso</span>
+        <div class="toggle" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+
+    <div class="alert-dms">
+      <strong>⚠ Atenção</strong>
+      Você tem 87 dias para confirmar sua presença. Se não confirmar até 13 Jul 2026, o Estágio 1 será disparado automaticamente.
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <span>SentinelMail · Módulo BitLegacy · Protótipo v0.1</span>
+  <span>Dados locais · Zero custódia · Open source</span>
+</footer>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-title">◉ &nbsp;Confirmar presença</div>
+    <p class="modal-sub">Ao confirmar, o contador é reiniciado por mais 90 dias. O sistema registra sua confirmação com timestamp e não dispara nenhuma mensagem.</p>
+    <span class="modal-timer" id="modal-timer">03</span>
+    <span class="modal-timer-label">Aguarde para confirmar</span>
+    <button class="modal-btn" id="confirm-btn" onclick="confirmAlive()" disabled style="opacity:0.4; cursor:not-allowed">
+      ✓ &nbsp;Estou vivo — reiniciar contador
+    </button>
+    <button class="modal-cancel" onclick="document.getElementById('overlay').classList.remove('open')">
+      Cancelar
+    </button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✓ Presença confirmada — próximo ping em 90 dias</div>
+
+<script>
+// Ring animation
+function updateRing(days, max) {
+  const circumference = 2 * Math.PI * 65;
+  const offset = circumference * (1 - days / max);
+  const fill = document.getElementById('ring-fill');
+  fill.style.strokeDashoffset = offset;
+  if (days < 30) {
+    fill.style.stroke = 'var(--red)';
+    fill.style.filter = 'drop-shadow(0 0 4px rgba(255,58,58,0.5))';
+  } else if (days < 60) {
+    fill.style.stroke = 'var(--amber)';
+    fill.style.filter = 'drop-shadow(0 0 4px rgba(255,170,0,0.5))';
+  } else {
+    fill.style.stroke = 'var(--cyan)';
+    fill.style.filter = 'drop-shadow(0 0 4px rgba(0,229,204,0.5))';
+  }
+}
+
+let currentDays = 87;
+updateRing(currentDays, 90);
+
+// Toggle cards
+function toggleCard(n) {
+  const body = document.getElementById('body-' + n);
+  const card = document.getElementById('card-' + n);
+  body.classList.toggle('open');
+}
+
+// Modal countdown
+let modalTimer = null;
+let countdown = 3;
+
+function openModal() {
+  document.getElementById('overlay').classList.add('open');
+  countdown = 3;
+  document.getElementById('modal-timer').textContent = '0' + countdown;
+  document.getElementById('confirm-btn').disabled = true;
+  document.getElementById('confirm-btn').style.opacity = '0.4';
+  document.getElementById('confirm-btn').style.cursor = 'not-allowed';
+
+  modalTimer = setInterval(() => {
+    countdown--;
+    document.getElementById('modal-timer').textContent = countdown < 10 ? '0' + countdown : countdown;
+    if (countdown <= 0) {
+      clearInterval(modalTimer);
+      document.getElementById('modal-timer').textContent = '✓';
+      document.getElementById('confirm-btn').disabled = false;
+      document.getElementById('confirm-btn').style.opacity = '1';
+      document.getElementById('confirm-btn').style.cursor = 'pointer';
+    }
+  }, 1000);
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('overlay')) {
+    document.getElementById('overlay').classList.remove('open');
+    clearInterval(modalTimer);
+  }
+}
+
+function confirmAlive() {
+  document.getElementById('overlay').classList.remove('open');
+  currentDays = 90;
+  document.getElementById('ring-days').textContent = '90';
+  updateRing(90, 90);
+
+  // Show toast
+  const toast = document.getElementById('toast');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+
+  // Add to log
+  const log = document.querySelector('.ping-log');
+  const today = new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'short', year:'numeric'});
+  const item = document.createElement('div');
+  item.className = 'ping-item';
+  item.innerHTML = `<span class="ping-date">${today}</span><span class="ping-status">✓ Confirmado</span>`;
+  log.insertBefore(item, log.firstChild);
+
+  // Simulate countdown
+  setTimeout(() => {
+    let d = 90;
+    const tick = setInterval(() => {
+      d--;
+      document.getElementById('ring-days').textContent = d;
+      updateRing(d, 90);
+      if (d <= 0) clearInterval(tick);
+    }, 30);
+  }, 500);
+}
+
+function addStage() {
+  const n = document.querySelectorAll('.msg-card').length + 1;
+  const card = document.createElement('div');
+  card.className = 'msg-card';
+  card.id = 'card-' + n;
+  card.innerHTML = `
+    <div class="msg-header" onclick="toggleCard(${n})">
+      <div class="msg-left">
+        <div class="msg-step">${n}</div>
+        <div class="msg-info">
+          <div class="msg-delay">Novo estágio</div>
+          <div class="msg-recipient">→ Destinatário não definido</div>
+        </div>
+      </div>
+      <span class="msg-badge badge-wait">Rascunho</span>
+    </div>
+    <div class="msg-body open" id="body-${n}">
+      <div class="msg-subject">Assunto: [Definir assunto]</div>
+      <div class="msg-preview" style="color:var(--muted2); font-style:normal; font-size:11px">Clique em "Editar mensagem" para configurar este estágio.</div>
+      <div class="msg-actions">
+        <button class="mini-btn primary">✎ Editar mensagem</button>
+        <button class="mini-btn">+ Destinatário</button>
+        <button class="mini-btn">⏱ Alterar prazo</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('timeline').appendChild(card);
+}
+
+function addRecipient(n) {
+  alert('Em produção: abre modal para adicionar destinatário com nome, email e nível de acesso às informações.');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitcoin App Ideas — Dores Reais</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #050507;
+    --surface: #0d0d12;
+    --card: #0f0f16;
+    --border: #1a1a28;
+    --border2: #242438;
+    --btc: #f7931a;
+    --btc-dim: rgba(247,147,26,0.12);
+    --green: #00d97e;
+    --red: #ff4d6d;
+    --blue: #4da6ff;
+    --purple: #b67eff;
+    --yellow: #ffe566;
+    --text: #e4e4f0;
+    --muted: #5a5a78;
+    --muted2: #3a3a55;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Animated BTC grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(247,147,26,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(247,147,26,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  * { position: relative; z-index: 1; }
+
+  /* HEADER */
+  header {
+    padding: 56px 48px 44px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(247,147,26,0.06) 0%, transparent 100%);
+  }
+
+  .btc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--btc-dim);
+    border: 1px solid rgba(247,147,26,0.3);
+    padding: 5px 14px;
+    border-radius: 2px;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--btc);
+    margin-bottom: 24px;
+  }
+
+  .btc-badge::before { content: '₿'; font-size: 14px; }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 5.5vw, 72px);
+    font-weight: 700;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+  }
+
+  h1 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--btc);
+  }
+
+  .sub {
+    color: var(--muted);
+    font-size: 12px;
+    max-width: 520px;
+    line-height: 1.8;
+    margin-bottom: 36px;
+  }
+
+  .metrics {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    width: fit-content;
+    flex-wrap: wrap;
+  }
+
+  .metric {
+    padding: 14px 28px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .metric:last-child { border-right: none; }
+
+  .metric-val {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--btc);
+  }
+
+  .metric-lbl {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+  }
+
+  /* FILTER */
+  .filters {
+    display: flex;
+    gap: 6px;
+    padding: 16px 48px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(5,5,7,0.9);
+    backdrop-filter: blur(8px);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    flex-wrap: wrap;
+  }
+
+  .fb {
+    background: none;
+    border: 1px solid var(--muted2);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 5px 14px;
+    cursor: pointer;
+    border-radius: 2px;
+    letter-spacing: 0.08em;
+    transition: all 0.2s;
+  }
+
+  .fb:hover, .fb.on {
+    border-color: var(--btc);
+    color: var(--btc);
+    background: var(--btc-dim);
+  }
+
+  /* LAYOUT */
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+  }
+
+  /* CARDS */
+  .cards-wrap {
+    padding: 36px 48px;
+    border-right: 1px solid var(--border);
+  }
+
+  .section-head {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-head::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 14px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 22px;
+    cursor: default;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    animation: pop 0.35s ease both;
+    overflow: hidden;
+  }
+
+  @keyframes pop {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .card:hover {
+    border-color: var(--c, var(--btc));
+    box-shadow: 0 0 0 1px var(--c, var(--btc)), 0 12px 40px rgba(0,0,0,0.5);
+    transform: translateY(-3px);
+  }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+
+  .card-icon {
+    font-size: 26px;
+    line-height: 1;
+  }
+
+  .cat-tag {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--c, var(--btc));
+    border: 1px solid var(--c, var(--btc));
+    padding: 2px 8px;
+    border-radius: 1px;
+    opacity: 0.8;
+  }
+
+  .pain-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.35;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  .pain-body {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 14px;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 14px;
+  }
+
+  .app-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .app-bullet {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--c, var(--btc));
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+
+  .app-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  .app-desc {
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-top: 2px;
+  }
+
+  .footer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .market-badge {
+    font-size: 9px;
+    color: var(--green);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .diff-pips {
+    display: flex;
+    gap: 3px;
+  }
+
+  .pip {
+    width: 18px; height: 4px;
+    border-radius: 2px;
+    background: var(--border2);
+  }
+  .pip.on { background: var(--c, var(--btc)); }
+
+  /* SIDEBAR */
+  .sidebar {
+    padding: 36px 24px;
+  }
+
+  .sb-block { margin-bottom: 28px; }
+
+  .sb-title {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .insight {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--c, var(--btc));
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    border-radius: 0 3px 3px 0;
+  }
+
+  .insight-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--c, var(--btc));
+    margin-bottom: 4px;
+  }
+
+  .insight-text {
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .stat-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 12px;
+    border-radius: 3px;
+    text-align: center;
+  }
+
+  .stat-box-val {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--btc);
+    display: block;
+  }
+
+  .stat-box-lbl {
+    font-size: 9px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 3px;
+    display: block;
+    line-height: 1.3;
+  }
+
+  .alert-box {
+    background: rgba(255,77,109,0.07);
+    border: 1px solid rgba(255,77,109,0.25);
+    border-radius: 4px;
+    padding: 14px;
+    font-size: 10px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .alert-box strong {
+    color: var(--red);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 860px) {
+    header, .cards-wrap { padding: 24px 20px; }
+    .filters { padding: 12px 20px; }
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .metrics { flex-direction: column; width: 100%; }
+    .metric { border-right: none; border-bottom: 1px solid var(--border); }
+    .metric:last-child { border-bottom: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="btc-badge">Bitcoin & Crypto · Oportunidades de Produto</div>
+  <h1>Dores reais.<br><em>Apps que faltam.</em></h1>
+  <p class="sub">Pesquisa baseada nos maiores problemas de usuários de Bitcoin e cripto em 2025 — do iniciante ao holder experiente.</p>
+  <div class="metrics">
+    <div class="metric"><span class="metric-val">16</span><span class="metric-lbl">Ideias mapeadas</span></div>
+    <div class="metric"><span class="metric-val">169%</span><span class="metric-lbl">↑ ataques físicos 2025</span></div>
+    <div class="metric"><span class="metric-val">65%</span><span class="metric-lbl">users odeiam endereços</span></div>
+    <div class="metric"><span class="metric-val">$3.8B</span><span class="metric-lbl">roubados em 2022</span></div>
+  </div>
+</header>
+
+<nav class="filters">
+  <button class="fb on" onclick="filter('all',this)">Todos</button>
+  <button class="fb" onclick="filter('educacao',this)">📖 Educação</button>
+  <button class="fb" onclick="filter('seguranca',this)">🔐 Segurança</button>
+  <button class="fb" onclick="filter('ux',this)">🖥 UX / Onboarding</button>
+  <button class="fb" onclick="filter('portfolio',this)">📊 Portfolio</button>
+  <button class="fb" onclick="filter('fiscal',this)">🧾 Fiscal</button>
+  <button class="fb" onclick="filter('pagamentos',this)">💸 Pagamentos</button>
+</nav>
+
+<div class="layout">
+  <div class="cards-wrap">
+    <div class="section-head">Ideias de Aplicativos Bitcoin / Cripto</div>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sb-block">
+      <div class="sb-title">Dados do Mercado</div>
+      <div class="stat-grid">
+        <div class="stat-box"><span class="stat-box-val">580M</span><span class="stat-box-lbl">usuários cripto no mundo</span></div>
+        <div class="stat-box"><span class="stat-box-val">~20%</span><span class="stat-box-lbl">entendem o que fazem</span></div>
+        <div class="stat-box"><span class="stat-box-val">54%</span><span class="stat-box-lbl">querem pagar no dia a dia</span></div>
+        <div class="stat-box"><span class="stat-box-val">22%</span><span class="stat-box-lbl">dor: câmbio ruim</span></div>
+      </div>
+    </div>
+
+    <div class="sb-block">
+      <div class="sb-title">Insights Chave</div>
+      <div class="insight" style="--c: #f7931a">
+        <div class="insight-label">Oportunidade #1</div>
+        <div class="insight-text">Educação acessível é o gap mais óbvio. A maioria dos cursos é técnico demais ou raso demais.</div>
+      </div>
+      <div class="insight" style="--c: #00d97e">
+        <div class="insight-label">Oportunidade #2</div>
+        <div class="insight-text">Declaração de IR com cripto é uma dor universal em todos os países. Mercado inexplorado no Brasil.</div>
+      </div>
+      <div class="insight" style="--c: #4da6ff">
+        <div class="insight-label">Oportunidade #3</div>
+        <div class="insight-text">65% dos usuários preferem nicknames a endereços. UX de pagamento ainda é péssima.</div>
+      </div>
+    </div>
+
+    <div class="sb-block">
+      <div class="alert-box">
+        <strong>⚠ Atenção</strong>
+        Apps que lidam com custódia de fundos exigem compliance legal. Foque em ferramentas educacionais, de análise e de organização — não em carteiras custodiais.
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+const colors = {
+  educacao: '#f7931a',
+  seguranca: '#ff4d6d',
+  ux: '#4da6ff',
+  portfolio: '#00d97e',
+  fiscal: '#ffe566',
+  pagamentos: '#b67eff'
+};
+
+const cards = [
+  {
+    icon: '📖', cat: 'educacao', catLabel: 'Educação',
+    pain: 'Iniciantes não entendem carteiras, seed phrases ou chaves privadas',
+    body: 'A curva de aprendizado do Bitcoin Core afasta 90% dos novatos. Termos técnicos, medo de errar e perder fundos bloqueiam a adoção.',
+    appName: 'SeedSafe Learn',
+    appDesc: 'App de microlearning gamificado sobre Bitcoin: conceitos, carteiras, segurança. Simulador de transações sem risco real.',
+    market: 'Mercado massivo',
+    diff: 2
+  },
+  {
+    icon: '🎮', cat: 'educacao', catLabel: 'Educação',
+    pain: 'Falta de prática segura antes de usar Bitcoin de verdade',
+    body: 'Não existe ambiente sandbox amigável para praticar transações, criar carteiras e testar seed phrase recovery antes de arriscar.',
+    appName: 'BitSandbox',
+    appDesc: 'Simulador 100% funcional de carteira Bitcoin usando testnet. Pratica envio, recebimento, backup — sem risco de perder nada.',
+    market: 'Educacional/B2C',
+    diff: 3
+  },
+  {
+    icon: '🔑', cat: 'seguranca', catLabel: 'Segurança',
+    pain: 'Seed phrase guardada de forma insegura ou esquecida',
+    body: 'A maioria guarda no bloco de notas, no Google Drive ou no papel. Qualquer falha = perda permanente dos fundos.',
+    appName: 'VaultPhrase',
+    appDesc: 'Guia interativo de backup de seed phrase: gera plano personalizado (metal, paper, shamir), checklist de segurança e lembretes.',
+    market: 'Alta urgência',
+    diff: 2
+  },
+  {
+    icon: '🚨', cat: 'seguranca', catLabel: 'Segurança',
+    pain: 'Phishing e golpes cripto impossíveis de identificar para novatos',
+    body: 'Sites falsos, DMs no Telegram, "suporte técnico" — os golpes evoluem mais rápido do que a educação do usuário.',
+    appName: 'CryptoGuard',
+    appDesc: 'Extensão + app que verifica URLs, endereços e contratos antes de qualquer transação. Alerta em tempo real sobre golpes conhecidos.',
+    market: 'Segurança',
+    diff: 3
+  },
+  {
+    icon: '🤝', cat: 'seguranca', catLabel: 'Segurança',
+    pain: 'Herança digital: família não sabe acessar os Bitcoin após morte',
+    body: 'Bilhões em BTC estão presos em carteiras cujos donos morreram. Não existe solução simples de sucessão digital para cripto.',
+    appName: 'BitLegacy',
+    appDesc: 'Plano de herança cripto: define herdeiros, instrução step-by-step e revelação condicional de acesso. Sem custódia.',
+    market: 'Nicho premium',
+    diff: 4
+  },
+  {
+    icon: '😤', cat: 'ux', catLabel: 'UX / Onboarding',
+    pain: 'Endereços Bitcoin são impossíveis de ler e verificar manualmente',
+    body: '65% dos usuários querem nicknames em vez de endereços. Um erro de digitação = fundos perdidos para sempre.',
+    appName: 'BitHandle',
+    appDesc: 'Diretório de nicknames Bitcoin: associa nome legível a endereço, com verificação em múltiplos canais antes de enviar.',
+    market: 'UX crítica',
+    diff: 3
+  },
+  {
+    icon: '⛽', cat: 'ux', catLabel: 'UX / Onboarding',
+    pain: 'Taxa de transação (fee) incompreensível — muito alta ou confirmação lenta',
+    body: 'Usuários pagam fee errada: ou gastam demais ou ficam esperando horas pela confirmação sem saber o porquê.',
+    appName: 'FeeWise',
+    appDesc: 'Calculadora de fee inteligente com histórico de mempool, previsão de confirmação e recomendação em linguagem simples.',
+    market: 'Utilidade diária',
+    diff: 2
+  },
+  {
+    icon: '🗺️', cat: 'ux', catLabel: 'UX / Onboarding',
+    pain: 'Profissionais de TI aprendem Bitcoin Core sem roteiro estruturado',
+    body: 'Conteúdo existe mas está espalhado. Falta um roadmap claro: do zero ao nó completo, com contexto prático.',
+    appName: 'CorePath',
+    appDesc: 'Roadmap interativo para dominar Bitcoin Core: trilha estruturada, exercícios práticos, progresso salvo, comunidade integrada.',
+    market: 'Dev / IT',
+    diff: 3
+  },
+  {
+    icon: '📊', cat: 'portfolio', catLabel: 'Portfolio',
+    pain: 'Portfólio cripto espalhado em 5 exchanges e 3 carteiras sem visão unificada',
+    body: 'Usuários sérios têm BTC em hardware wallet, ETH em exchange, staking em outro lugar — zero consolidação.',
+    appName: 'CryptoFolio BR',
+    appDesc: 'Dashboard unificado de portfólio: conecta exchanges via API read-only, carteiras on-chain, calcula P&L e posição total.',
+    market: 'Holder ativo',
+    diff: 3
+  },
+  {
+    icon: '📉', cat: 'portfolio', catLabel: 'Portfolio',
+    pain: 'Sem alertas inteligentes: usuário descobre a queda quando já é tarde',
+    body: 'Apps de preço têm alertas básicos de %. O que falta é contexto: o que esse movimento significa para minha posição?',
+    appName: 'AlertIQ',
+    appDesc: 'Alertas contextuais: preço + impacto no portfólio pessoal + sugestão de ação + histórico de movimentos similares.',
+    market: 'Traders/holders',
+    diff: 3
+  },
+  {
+    icon: '🧾', cat: 'fiscal', catLabel: 'Fiscal / IR',
+    pain: 'Declaração de IR com Bitcoin é um pesadelo burocrático no Brasil',
+    body: 'Cada transação pode ser um fato gerador. Calcular ganho de capital manualmente é inviável para quem opera com frequência.',
+    appName: 'BitIR Brasil',
+    appDesc: 'Importa histórico de transações, calcula ganho de capital por operação, gera DARF e relatório para declaração da Receita Federal.',
+    market: '🇧🇷 Alta demanda',
+    diff: 3
+  },
+  {
+    icon: '📋', cat: 'fiscal', catLabel: 'Fiscal / IR',
+    pain: 'Sem registro formal de transações para pessoas jurídicas',
+    body: 'Empresas que aceitam ou investem em cripto precisam de rastreio contábil mas falta ferramenta focada em PJ brasileira.',
+    appName: 'CryptoCont PJ',
+    appDesc: 'Registro contábil de operações cripto para PJ: categoriza por natureza, gera relatório por período, exporta para contador.',
+    market: 'B2B nicho',
+    diff: 3
+  },
+  {
+    icon: '💸', cat: 'pagamentos', catLabel: 'Pagamentos',
+    pain: 'Enviar remessas internacionais com cripto é arriscado e confuso',
+    body: '22% dos usuários citam taxa de câmbio ruim como principal dor. Converter cripto→fiat no destino ainda é caro e lento.',
+    appName: 'RemessaBTC',
+    appDesc: 'Compara rotas de remessa (Lightning, on-chain, stablecoin) com custo total real. Mostra melhor caminho para cada corredor.',
+    market: 'Diaspora BR',
+    diff: 4
+  },
+  {
+    icon: '🏪', cat: 'pagamentos', catLabel: 'Pagamentos',
+    pain: 'Pequenos negócios não sabem como aceitar Bitcoin de forma simples',
+    body: 'Soluções existentes são técnicas demais ou cobram % alto. Falta algo "plug and play" para MEI e pequeno comércio.',
+    appName: 'PagBTC',
+    appDesc: 'Link de pagamento Bitcoin/Lightning para autônomos: gera QR, converte para BRL automaticamente, notifica por WhatsApp.',
+    market: 'MEI / autônomo',
+    diff: 3
+  },
+  {
+    icon: '⚡', cat: 'pagamentos', catLabel: 'Pagamentos',
+    pain: 'Lightning Network incompreensível: canais, liquidez, roteamento',
+    body: 'A Lightning resolve o problema de velocidade mas poucos conseguem configurar e usar sem travar em conceitos técnicos.',
+    appName: 'LightEasy',
+    appDesc: 'Interface simplificada para Lightning: abre canal com 1 clique, visualiza liquidez em gráfico, explica cada passo.',
+    market: 'Dev / avançado',
+    diff: 4
+  },
+  {
+    icon: '🌍', cat: 'pagamentos', catLabel: 'Pagamentos',
+    pain: 'Nenhum app de pagamento cripto focado em brasileiros no Canadá',
+    body: 'Comunidade brasileira no Canadá envia dinheiro ao Brasil regularmente — mas as soluções disponíveis ignoram esse corredor.',
+    appName: 'BridgeBR',
+    appDesc: 'App para brasileiros no Canadá: converte CAD→BTC→BRL com melhor rota, suporte em português, integração com Wise e Pix.',
+    market: '🇨🇦🇧🇷 Nicho seu',
+    diff: 4
+  }
+];
+
+function render(cat) {
+  const list = cat === 'all' ? cards : cards.filter(c => c.category === cat || c.cat === cat);
+  const grid = document.getElementById('grid');
+  grid.innerHTML = list.map((c, i) => {
+    const col = colors[c.cat] || '#f7931a';
+    const pips = Array.from({length:4}, (_,j) =>
+      `<div class="pip ${j < c.diff ? 'on' : ''}"></div>`).join('');
+    return `
+    <div class="card" style="--c:${col}; animation-delay:${i*35}ms">
+      <div class="card-top">
+        <span class="card-icon">${c.icon}</span>
+        <span class="cat-tag">${c.catLabel}</span>
+      </div>
+      <div class="pain-title">${c.pain}</div>
+      <div class="pain-body">${c.body}</div>
+      <div class="divider"></div>
+      <div class="app-row">
+        <div class="app-bullet"></div>
+        <div>
+          <div class="app-name">${c.appName}</div>
+          <div class="app-desc">${c.appDesc}</div>
+        </div>
+      </div>
+      <div class="footer-row">
+        <span class="market-badge">↗ ${c.market}</span>
+        <div class="diff-pips">${pips}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filter(cat, btn) {
+  document.querySelectorAll('.fb').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  render(cat);
+}
+
+render('all');
+</script>
+</body>
+</html>

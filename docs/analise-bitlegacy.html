@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BitLegacy — Oportunidade de Produto</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #08070a;
+    --s1: #0f0e14;
+    --s2: #14131c;
+    --border: #1e1c2a;
+    --border2: #2a2840;
+    --gold: #c9a84c;
+    --gold2: #e8c97a;
+    --gold-dim: rgba(201,168,76,0.1);
+    --green: #3ddc84;
+    --red: #ff5c5c;
+    --blue: #5b8fff;
+    --text: #dddaf0;
+    --muted: #6a677e;
+    --muted2: #4a4760;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+
+  /* Subtle vignette */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.04) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  * { position: relative; z-index: 1; }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 64px 56px 52px;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 48px;
+    align-items: start;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+
+  .eyebrow::before {
+    content: '';
+    width: 24px; height: 1px;
+    background: var(--gold);
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(42px, 5vw, 68px);
+    font-weight: 700;
+    line-height: 1.0;
+    letter-spacing: -0.01em;
+    margin-bottom: 20px;
+    color: #f0ede8;
+  }
+
+  h1 span { color: var(--gold2); font-style: italic; }
+
+  .hero-sub {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.8;
+    max-width: 520px;
+    margin-bottom: 32px;
+  }
+
+  .verdict-box {
+    background: var(--gold-dim);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 6px;
+    padding: 20px 24px;
+    margin-bottom: 0;
+  }
+
+  .verdict-label {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  .verdict-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--gold2);
+  }
+
+  /* Score card */
+  .score-card {
+    background: var(--s1);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .score-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .score-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .score-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text);
+  }
+
+  .score-val { color: var(--gold); font-weight: 600; }
+
+  .bar-bg {
+    height: 4px;
+    background: var(--border2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--gold), var(--gold2));
+    animation: grow 1s ease both;
+    animation-delay: 0.3s;
+    transform-origin: left;
+  }
+
+  @keyframes grow {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+
+  /* ── BODY SECTIONS ── */
+  .body-wrap {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .main-col { border-right: 1px solid var(--border); }
+
+  section {
+    padding: 40px 56px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  section:last-child { border-bottom: none; }
+
+  .sec-eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sec-eyebrow::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    color: #f0ede8;
+  }
+
+  p { color: var(--muted); line-height: 1.8; margin-bottom: 12px; font-size: 13px; }
+  p:last-child { margin-bottom: 0; }
+  p strong { color: var(--text); font-weight: 500; }
+
+  /* Problem list */
+  .prob-list { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+
+  .prob-item {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 14px;
+    align-items: start;
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 14px 18px;
+  }
+
+  .prob-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    padding-top: 2px;
+  }
+
+  .prob-content strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+
+  .prob-content span { font-size: 11px; color: var(--muted); line-height: 1.6; }
+
+  /* Liana gap */
+  .gap-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 4px;
+  }
+
+  .gap-box {
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px;
+  }
+
+  .gap-box.has { border-left: 3px solid var(--green); }
+  .gap-box.missing { border-left: 3px solid var(--red); }
+
+  .gap-box-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+  .gap-box.has .gap-box-title { color: var(--green); }
+  .gap-box.missing .gap-box-title { color: var(--red); }
+
+  .gap-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 7px;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .gap-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+  .has .gap-dot { background: var(--green); }
+  .missing .gap-dot { background: var(--red); }
+
+  /* Product concept */
+  .concept-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .concept-layer {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 0;
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .layer-label {
+    padding: 14px 16px;
+    background: var(--s2);
+    border-right: 1px solid var(--border);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+  }
+
+  .layer-body {
+    padding: 12px 16px;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .layer-body strong { color: var(--text); font-weight: 500; }
+
+  /* Business model */
+  .biz-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 4px;
+  }
+
+  .biz-box {
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 18px;
+  }
+
+  .biz-icon { font-size: 22px; margin-bottom: 10px; display: block; }
+
+  .biz-name {
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .biz-desc { font-size: 10px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+
+  .biz-price {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--gold);
+    font-weight: 400;
+  }
+
+  /* Sidebar */
+  .side-col { padding: 32px 24px; }
+
+  .side-block { margin-bottom: 28px; }
+
+  .side-title {
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 14px;
+  }
+
+  .kv-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(30,28,42,0.7);
+    font-size: 11px;
+    gap: 12px;
+  }
+
+  .kv-key { color: var(--muted); flex: 1; }
+  .kv-val { color: var(--text); font-weight: 500; text-align: right; }
+  .kv-val.g { color: var(--green); }
+  .kv-val.r { color: var(--red); }
+  .kv-val.gold { color: var(--gold); }
+
+  .action-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .action-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 10px 12px;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .action-n {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gold);
+    flex-shrink: 0;
+    line-height: 1;
+    padding-top: 1px;
+  }
+
+  .warn-box {
+    background: rgba(255,92,92,0.06);
+    border: 1px solid rgba(255,92,92,0.22);
+    border-radius: 4px;
+    padding: 14px;
+    font-size: 10px;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+
+  .warn-box strong {
+    color: var(--red);
+    display: block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 5px;
+  }
+
+  .quote-block {
+    border-left: 3px solid var(--gold);
+    padding: 14px 18px;
+    background: var(--gold-dim);
+    border-radius: 0 4px 4px 0;
+    margin: 16px 0;
+  }
+
+  .quote-block p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-style: italic;
+    color: var(--gold2);
+    margin: 0;
+  }
+
+  /* Footer */
+  footer {
+    padding: 28px 56px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border);
+    font-size: 10px;
+    color: var(--muted);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .footer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--gold-dim);
+    border: 1px solid rgba(201,168,76,0.2);
+    padding: 5px 12px;
+    border-radius: 2px;
+    color: var(--gold);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding: 32px 24px; }
+    .body-wrap { grid-template-columns: 1fr; }
+    section { padding: 32px 24px; }
+    .side-col { padding: 24px; }
+    .biz-grid { grid-template-columns: 1fr; }
+    .gap-grid { grid-template-columns: 1fr; }
+    footer { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <div class="eyebrow">Análise de Oportunidade · Bitcoin · Direito Sucessório</div>
+    <h1>Herança Bitcoin<br><span>+ Jurídico.</span><br>O gap que ninguém preenchiu.</h1>
+    <p class="hero-sub">A Liana Wallet resolve a parte técnica da sucessão em Bitcoin — timelocks, multisig, chaves de recuperação. Mas o que ela não resolve é a ponte com o mundo jurídico, familiar e humano que envolve qualquer sucessão patrimonial real.</p>
+    <div class="verdict-box">
+      <div class="verdict-label">Veredito</div>
+      <div class="verdict-text">"A Liana é a melhor fundação técnica disponível. O produto que falta é o que senta na frente do cliente e explica o que isso significa para a família, o inventário e o imposto de renda."</div>
+    </div>
+  </div>
+
+  <div class="score-card">
+    <div class="score-title">Score da Oportunidade</div>
+    <div class="score-item">
+      <div class="score-label"><span>Tamanho do mercado</span><span class="score-val">9/10</span></div>
+      <div class="bar-bg"><div class="bar-fill" style="width:90%"></div></div>
+    </div>
+    <div class="score-item">
+      <div class="score-label"><span>Dor real e urgente</span><span class="score-val">10/10</span></div>
+      <div class="bar-bg"><div class="bar-fill" style="width:100%"></div></div>
+    </div>
+    <div class="score-item">
+      <div class="score-label"><span>Concorrência</span><span class="score-val">2/10 ← bom</span></div>
+      <div class="bar-bg"><div class="bar-fill" style="width:20%"></div></div>
+    </div>
+    <div class="score-item">
+      <div class="score-label"><span>Ticket possível</span><span class="score-val">8/10</span></div>
+      <div class="bar-bg"><div class="bar-fill" style="width:80%"></div></div>
+    </div>
+    <div class="score-item">
+      <div class="score-label"><span>Barreira de entrada</span><span class="score-val">7/10</span></div>
+      <div class="bar-bg"><div class="bar-fill" style="width:70%"></div></div>
+    </div>
+    <div class="score-item">
+      <div class="score-label"><span>Diferencial humano</span><span class="score-val">10/10</span></div>
+      <div class="bar-bg"><div class="bar-fill" style="width:100%"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="body-wrap">
+<div class="main-col">
+
+<!-- PROBLEMA -->
+<section>
+  <div class="sec-eyebrow">O Problema</div>
+  <h2>Por que a herança Bitcoin ainda é um campo minado?</h2>
+  <p>Bilhões em Bitcoin estão presos em carteiras cujos donos morreram. Estimativas conservadoras apontam que <strong>3 a 4 milhões de BTC estão perdidos para sempre</strong> — muitos por falta de um plano de herança. Não é um problema técnico. É um problema humano que precisa de uma solução que fale a língua do direito, da família e da tecnologia ao mesmo tempo.</p>
+
+  <div class="prob-list">
+    <div class="prob-item">
+      <div class="prob-num">01</div>
+      <div class="prob-content">
+        <strong>A parte técnica existe — a Liana resolve bem</strong>
+        <span>Timelocks on-chain, multisig expansível, chave de recuperação para herdeiros. Funciona. É open-source. É trustless. Mas é para quem entende de Bitcoin.</span>
+      </div>
+    </div>
+    <div class="prob-item">
+      <div class="prob-num">02</div>
+      <div class="prob-content">
+        <strong>A parte jurídica é opaca e sem padrão</strong>
+        <span>Bitcoin não consta no inventário convencional como um bem imóvel ou conta bancária. Advogados de sucessão raramente entendem custódia, chaves privadas ou timelocks. Os que entendem de cripto raramente entendem direito sucessório profundo.</span>
+      </div>
+    </div>
+    <div class="prob-item">
+      <div class="prob-num">03</div>
+      <div class="prob-content">
+        <strong>A família não sabe o que fazer quando o momento chega</strong>
+        <span>Mesmo com Liana configurada, o herdeiro recebe um hardware wallet, uma carta de instruções e zero suporte emocional ou técnico. Na hora da perda, essa pessoa precisa agir. Sem guia claro, o Bitcoin pode ser perdido mesmo com a solução técnica montada.</span>
+      </div>
+    </div>
+    <div class="prob-item">
+      <div class="prob-num">04</div>
+      <div class="prob-content">
+        <strong>Não existe um produto que integre as três camadas</strong>
+        <span>Técnica (carteira + chaves + timelock) + Jurídica (testamento, inventário, declaração de IR) + Humana (instrução para herdeiros, acompanhamento, suporte). Essa integração é o gap.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- O QUE A LIANA FAZ E O QUE FALTA -->
+<section>
+  <div class="sec-eyebrow">Análise da Liana Wallet</div>
+  <h2>O que ela resolve — e o que ela deixa aberto.</h2>
+  <p>A Liana é genuinamente impressionante do ponto de vista técnico. <strong>Usa Miniscript e timelocks nativos do Bitcoin</strong> para programar condições de acesso on-chain — sem intermediários. O plano de herança deles custa €500/ano e inclui consultoria de setup. Mas mesmo assim, o escopo deles termina na chave privada.</p>
+
+  <div class="gap-grid">
+    <div class="gap-box has">
+      <div class="gap-box-title">✓ O que a Liana faz</div>
+      <div class="gap-item"><div class="gap-dot"></div>Timelock programável (até ~15 meses)</div>
+      <div class="gap-item"><div class="gap-dot"></div>Multisig expansível (2-de-2 → 1-de-3)</div>
+      <div class="gap-item"><div class="gap-dot"></div>Chave de recuperação para herdeiro</div>
+      <div class="gap-item"><div class="gap-dot"></div>Open-source, sem terceiros</div>
+      <div class="gap-item"><div class="gap-dot"></div>Compatível com Ledger, Coldcard, Jade</div>
+      <div class="gap-item"><div class="gap-dot"></div>Carta de instruções básica para herdeiro</div>
+      <div class="gap-item"><div class="gap-dot"></div>Safety Net (consultoria como último recurso)</div>
+    </div>
+    <div class="gap-box missing">
+      <div class="gap-box-title">✗ O que ela NÃO faz</div>
+      <div class="gap-item"><div class="gap-dot"></div>Integração com testamento / inventário</div>
+      <div class="gap-item"><div class="gap-dot"></div>Orientação jurídica local (Brasil, Canadá…)</div>
+      <div class="gap-item"><div class="gap-dot"></div>Declaração de IR e imposto sucessório</div>
+      <div class="gap-item"><div class="gap-dot"></div>Acompanhamento do herdeiro no processo</div>
+      <div class="gap-item"><div class="gap-dot"></div>Checklist de ações pós-óbito</div>
+      <div class="gap-item"><div class="gap-dot"></div>Multilingue / adaptado a jurisdições locais</div>
+      <div class="gap-item"><div class="gap-dot"></div>Conexão com advogado especializado</div>
+    </div>
+  </div>
+
+  <div class="quote-block" style="margin-top: 20px">
+    <p>"A Liana configura a fechadura. O produto que falta entrega a chave para a pessoa certa, na hora certa, com um advogado ao lado e sem que a família precise entender o que é Miniscript."</p>
+  </div>
+</section>
+
+<!-- CONCEITO DO PRODUTO -->
+<section>
+  <div class="sec-eyebrow">Conceito de Produto</div>
+  <h2>BitLegacy — a camada que a Liana não tem.</h2>
+  <p>Não é uma carteira concorrente. É um <strong>serviço de orquestração</strong> que usa a Liana como motor técnico e adiciona as camadas humana, jurídica e operacional que faltam. Funciona como uma consultoria estruturada com software de apoio.</p>
+
+  <div class="concept-stack">
+    <div class="concept-layer">
+      <div class="layer-label">Camada 1 · Técnica</div>
+      <div class="layer-body"><strong>Setup da Liana Wallet</strong> — configuração do timelock, multisig, chaves de herdeiro. Guia passo a passo. Parceria com Liana como reseller/partner certificado. O consultor técnico do amigo cuida dessa camada.</div>
+    </div>
+    <div class="concept-layer">
+      <div class="layer-label">Camada 2 · Jurídica</div>
+      <div class="layer-body"><strong>Protocolo de documentação legal</strong> — checklist para advogado de sucessão, orientação sobre como declarar BTC no testamento, impacto tributário, inventário. Parceria com advogados especializados. Adaptado por país (Brasil, Canadá).</div>
+    </div>
+    <div class="concept-layer">
+      <div class="layer-label">Camada 3 · Familiar</div>
+      <div class="layer-body"><strong>Kit do Herdeiro</strong> — documento lacrado com instruções step-by-step, vídeo gravado pelo titular, checklist de ações pós-óbito, contato do consultor. Suporte ativo no momento da execução. A família não precisa entender Bitcoin.</div>
+    </div>
+    <div class="concept-layer">
+      <div class="layer-label">Camada 4 · Software</div>
+      <div class="layer-body"><strong>Painel do cliente</strong> — status do plano, próximas renovações de timelock, documentos armazenados, contatos dos herdeiros, alertas de saúde do setup. App web simples com Node/React/PostgreSQL.</div>
+    </div>
+    <div class="concept-layer">
+      <div class="layer-label">Camada 5 · Marketplace</div>
+      <div class="layer-body"><strong>Rede de especialistas</strong> — diretório de advogados de sucessão com conhecimento em cripto, por estado/país. Modelo de indicação ou split de receita. Resolve o problema central do amigo: faltam advogados que entendam os dois mundos.</div>
+    </div>
+  </div>
+</section>
+
+<!-- MODELO DE NEGÓCIO -->
+<section>
+  <div class="sec-eyebrow">Modelo de Negócio</div>
+  <h2>Como monetizar isso de forma ética e escalável.</h2>
+
+  <div class="biz-grid">
+    <div class="biz-box">
+      <span class="biz-icon">🧭</span>
+      <div class="biz-name">Consultoria Setup</div>
+      <div class="biz-desc">Sessão de 2–3h com o cliente: diagnóstico patrimonial, configuração da Liana, protocolo jurídico, kit do herdeiro. Presencial ou remoto.</div>
+      <div class="biz-price">R$2.000 – R$8.000</div>
+    </div>
+    <div class="biz-box">
+      <span class="biz-icon">🔄</span>
+      <div class="biz-name">Manutenção Anual</div>
+      <div class="biz-desc">Renovação de timelock, atualização de herdeiros, health check do setup, revisão jurídica anual, suporte emergencial.</div>
+      <div class="biz-price">R$800 – R$2.400/ano</div>
+    </div>
+    <div class="biz-box">
+      <span class="biz-icon">⚖️</span>
+      <div class="biz-name">Rede de Advogados</div>
+      <div class="biz-desc">Marketplace de especialistas cadastrados. Comissão de indicação ou fee mensal para aparecer no diretório com badge "BitLegacy Verified".</div>
+      <div class="biz-price">15–20% comissão</div>
+    </div>
+    <div class="biz-box">
+      <span class="biz-icon">🏛️</span>
+      <div class="biz-name">B2B — Escritórios</div>
+      <div class="biz-desc">Licença white-label do software + treinamento para escritórios de advocacia e family offices que queiram oferecer o serviço para seus clientes.</div>
+      <div class="biz-price">R$500–2k/mês</div>
+    </div>
+    <div class="biz-box">
+      <span class="biz-icon">📚</span>
+      <div class="biz-name">Treinamento</div>
+      <div class="biz-desc">Curso online para advogados: "Como incluir Bitcoin no planejamento sucessório". Certificação BitLegacy. Resolve a escassez de especialistas.</div>
+      <div class="biz-price">R$1.500 – R$3.000</div>
+    </div>
+    <div class="biz-box">
+      <span class="biz-icon">🌎</span>
+      <div class="biz-name">Expansão Internacional</div>
+      <div class="biz-desc">Brasil → Canadá → Portugal → outros países hispanófonos. Comunidade bitcoiner brasileira no Canadá é um mercado inicial natural.</div>
+      <div class="biz-price">CAD 500–2k/setup</div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /main-col -->
+
+<!-- SIDEBAR -->
+<div class="side-col">
+
+  <div class="side-block">
+    <div class="side-title">Visão Geral do Mercado</div>
+    <div class="kv-row"><span class="kv-key">BTC potencialmente perdido</span><span class="kv-val r">3–4M BTC</span></div>
+    <div class="kv-row"><span class="kv-key">Usuários cripto no Brasil</span><span class="kv-val">~10M</span></div>
+    <div class="kv-row"><span class="kv-key">% com plano de herança</span><span class="kv-val r">&lt; 5%</span></div>
+    <div class="kv-row"><span class="kv-key">Liana — plano herança</span><span class="kv-val">€500/ano</span></div>
+    <div class="kv-row"><span class="kv-key">Concorrentes diretos BR</span><span class="kv-val g">Nenhum conhecido</span></div>
+    <div class="kv-row"><span class="kv-key">Ticket médio consultoria</span><span class="kv-val gold">R$3–5k</span></div>
+  </div>
+
+  <div class="side-block">
+    <div class="side-title">Próximos Passos Concretos</div>
+    <div class="action-list">
+      <div class="action-item">
+        <div class="action-n">1</div>
+        <div>Mapear 3–5 advogados de sucessão abertos a aprender Bitcoin. Eles são o ativo mais escasso.</div>
+      </div>
+      <div class="action-item">
+        <div class="action-n">2</div>
+        <div>Tornar-se Liana Partner certificado (wizardsardine.com). Dá credibilidade técnica imediata.</div>
+      </div>
+      <div class="action-item">
+        <div class="action-n">3</div>
+        <div>Criar o "Kit do Herdeiro" — documento + vídeo + checklist. Esse é o produto diferenciador.</div>
+      </div>
+      <div class="action-item">
+        <div class="action-n">4</div>
+        <div>Fazer 3 consultorias piloto com amigos/conhecidos. Validar o processo antes de cobrar preço cheio.</div>
+      </div>
+      <div class="action-item">
+        <div class="action-n">5</div>
+        <div>Construir o painel do cliente (software simples) só depois de validar o processo manual.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="side-block">
+    <div class="warn-box">
+      <strong>⚠ Atenção Jurídica</strong>
+      O produto não substitui advogado — ele conecta o cliente a um. Cuidado para não configurar exercício ilegal de advocacia. O software é uma ferramenta; a orientação jurídica vem sempre de um profissional habilitado na rede.
+    </div>
+  </div>
+
+  <div class="side-block">
+    <div class="side-title">Diferencial Competitivo</div>
+    <div class="kv-row"><span class="kv-key">Liana sozinha</span><span class="kv-val r">Só técnico</span></div>
+    <div class="kv-row"><span class="kv-key">Advogado tradicional</span><span class="kv-val r">Não entende cripto</span></div>
+    <div class="kv-row"><span class="kv-key">BitLegacy</span><span class="kv-val g">Integra os dois</span></div>
+    <div class="kv-row"><span class="kv-key">Idioma</span><span class="kv-val gold">PT-BR (gap real)</span></div>
+    <div class="kv-row"><span class="kv-key">Jurisdição</span><span class="kv-val gold">Brasil + Canadá</span></div>
+  </div>
+
+</div>
+</div><!-- /body-wrap -->
+
+<footer>
+  <span>Análise gerada com base em pesquisa de mercado e produto · Abril 2026</span>
+  <div class="footer-badge">₿ BitLegacy · Conceito de Produto</div>
+</footer>
+
+</body>
+</html>

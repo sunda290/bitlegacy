@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SovereignFolio — Portfólio Bitcoin Auto-Custódia</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #060810;
+    --s1: #0b0d18;
+    --s2: #101320;
+    --border: #181d30;
+    --border2: #222840;
+    --accent: #3d7eff;
+    --accent2: #7b5fff;
+    --orange: #ff8c3d;
+    --green: #2ecc8f;
+    --red: #ff4f6d;
+    --yellow: #ffd166;
+    --text: #dde4f5;
+    --muted: #5a6280;
+    --muted2: #3a4060;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 400px;
+    background: radial-gradient(ellipse 60% 40% at 70% -10%, rgba(61,126,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  * { position: relative; z-index: 1; }
+
+  /* ── HERO ── */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 48px;
+    padding: 60px 52px 48px;
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(61,126,255,0.1);
+    border: 1px solid rgba(61,126,255,0.25);
+    color: var(--accent);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 100px;
+    margin-bottom: 22px;
+  }
+
+  .pill::before { content: '◉'; font-size: 8px; }
+
+  h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(36px, 5vw, 62px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 18px;
+    color: #eef2ff;
+  }
+
+  h1 .hl { color: var(--accent); }
+  h1 .hl2 { color: var(--orange); }
+
+  .hero-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 540px;
+    margin-bottom: 28px;
+  }
+
+  .hero-desc strong { color: var(--text); font-weight: 500; }
+
+  /* Pain statement */
+  .pain-stmt {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pain-line {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--muted);
+    transition: border-color 0.2s;
+  }
+
+  .pain-line:hover { border-color: var(--border2); }
+
+  .pain-emoji { font-size: 18px; flex-shrink: 0; }
+  .pain-text strong { color: var(--text); display: block; font-size: 13px; font-weight: 600; margin-bottom: 1px; }
+
+  /* Score card */
+  .score-panel {
+    background: var(--s1);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 24px;
+  }
+
+  .sp-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sp-row {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 14px;
+  }
+
+  .sp-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+  }
+
+  .sp-name { color: var(--text); }
+  .sp-val { font-weight: 600; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+
+  .sp-bar { height: 3px; background: var(--border2); border-radius: 2px; overflow: hidden; }
+  .sp-fill {
+    height: 100%;
+    border-radius: 2px;
+    animation: barIn 0.8s ease both;
+    animation-delay: 0.2s;
+    transform-origin: left;
+  }
+
+  @keyframes barIn { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  .sp-verdict {
+    margin-top: 18px;
+    padding: 12px;
+    background: rgba(61,126,255,0.07);
+    border: 1px solid rgba(61,126,255,0.2);
+    border-radius: 6px;
+    font-size: 11px;
+    color: var(--text);
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  .sp-verdict strong { color: var(--accent); display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 4px; }
+
+  /* ── BODY ── */
+  .body-layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 0;
+  }
+
+  .main { border-right: 1px solid var(--border); }
+
+  section {
+    padding: 40px 52px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sec-tag {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sec-tag::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  h2 {
+    font-family: 'Lora', serif;
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.25;
+    margin-bottom: 14px;
+    color: #eef2ff;
+  }
+
+  p { color: var(--muted); font-size: 13px; line-height: 1.8; margin-bottom: 12px; }
+  p:last-child { margin-bottom: 0; }
+  p strong { color: var(--text); font-weight: 500; }
+
+  /* Wallet cards */
+  .wallet-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .w-card {
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+  }
+
+  .w-icon { font-size: 22px; margin-bottom: 10px; display: block; }
+  .w-name { font-weight: 700; font-size: 13px; color: var(--text); margin-bottom: 4px; }
+  .w-type { font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 8px; }
+  .w-points { list-style: none; }
+  .w-points li {
+    font-size: 10px;
+    color: var(--muted);
+    padding: 3px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .w-points li:last-child { border-bottom: none; }
+  .w-points li::before { content: '·'; color: var(--accent); font-size: 14px; line-height: 1; }
+
+  /* Friction table */
+  .friction-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 11px; }
+
+  .friction-table th {
+    text-align: left;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border2);
+    font-weight: 500;
+  }
+
+  .friction-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .friction-table tr:last-child td { border-bottom: none; }
+  .friction-table tr:hover td { background: var(--s1); }
+
+  .friction-table .scenario { color: var(--text); font-weight: 500; }
+  .friction-table .today { color: var(--muted); }
+  .friction-table .ideal { color: var(--green); }
+  .friction-table .badge {
+    display: inline-block;
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+  }
+
+  .badge.alto { background: rgba(255,79,109,0.15); color: var(--red); }
+  .badge.medio { background: rgba(255,209,102,0.15); color: var(--yellow); }
+  .badge.baixo { background: rgba(46,204,143,0.15); color: var(--green); }
+
+  /* Architecture */
+  .arch-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .arch-row {
+    display: grid;
+    grid-template-columns: 160px 1fr auto;
+    gap: 0;
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  .arch-label {
+    padding: 12px 14px;
+    background: var(--s2);
+    border-right: 1px solid var(--border);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+  }
+
+  .arch-body {
+    padding: 10px 14px;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .arch-body strong { color: var(--text); font-weight: 500; }
+
+  .arch-tag {
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    border-left: 1px solid var(--border);
+  }
+
+  .arch-tag span {
+    font-size: 9px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* Screens mockup */
+  .screens-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .screen-mock {
+    background: var(--s2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .screen-mock::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--c, var(--accent));
+  }
+
+  .screen-name {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--c, var(--accent));
+    margin-bottom: 10px;
+  }
+
+  .mock-line {
+    height: 7px;
+    background: var(--border2);
+    border-radius: 3px;
+    margin-bottom: 6px;
+  }
+
+  .mock-line.w30 { width: 30%; }
+  .mock-line.w50 { width: 50%; }
+  .mock-line.w70 { width: 70%; }
+  .mock-line.w90 { width: 90%; }
+  .mock-line.w100 { width: 100%; }
+  .mock-line.hl { background: rgba(61,126,255,0.3); }
+  .mock-line.hl2 { background: rgba(46,204,143,0.25); }
+
+  .mock-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--c, var(--accent));
+    margin: 8px 0 4px;
+  }
+
+  .screen-desc {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+
+  /* Biz model */
+  .biz-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .biz-item {
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px;
+  }
+
+  .biz-icon { font-size: 20px; margin-bottom: 10px; display: block; }
+  .biz-name { font-weight: 700; font-size: 13px; color: var(--text); margin-bottom: 5px; }
+  .biz-desc { font-size: 10px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+  .biz-price { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--green); }
+
+  /* Sidebar */
+  .sidebar { padding: 32px 24px; }
+
+  .sb-block { margin-bottom: 28px; }
+
+  .sb-title {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 14px;
+  }
+
+  .kv { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(24,29,48,0.8); font-size: 11px; gap: 10px; }
+  .kv:last-child { border-bottom: none; }
+  .kv-k { color: var(--muted); }
+  .kv-v { color: var(--text); font-weight: 500; text-align: right; }
+  .kv-v.g { color: var(--green); }
+  .kv-v.r { color: var(--red); }
+  .kv-v.b { color: var(--accent); }
+
+  .comp-item {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 10px;
+  }
+
+  .comp-item:last-child { border-bottom: none; }
+  .comp-name { color: var(--text); font-weight: 500; }
+
+  .dot-check {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    flex-shrink: 0;
+  }
+
+  .dot-check.y { background: rgba(46,204,143,0.15); color: var(--green); }
+  .dot-check.n { background: rgba(255,79,109,0.12); color: var(--red); }
+  .dot-check.p { background: rgba(255,209,102,0.12); color: var(--yellow); }
+
+  .comp-header {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    gap: 8px;
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border2);
+    margin-bottom: 2px;
+    text-align: center;
+  }
+
+  .comp-header span:first-child { text-align: left; }
+
+  .insight-card {
+    background: rgba(61,126,255,0.06);
+    border: 1px solid rgba(61,126,255,0.2);
+    border-radius: 6px;
+    padding: 14px;
+    font-size: 11px;
+    line-height: 1.65;
+    color: var(--text);
+  }
+
+  .insight-card strong { color: var(--accent); display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 5px; }
+
+  .action-list { display: flex; flex-direction: column; gap: 7px; }
+
+  .action-item {
+    display: flex;
+    gap: 10px;
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 9px 12px;
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.5;
+    align-items: flex-start;
+  }
+
+  .action-n {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    flex-shrink: 0;
+    font-weight: 500;
+    padding-top: 1px;
+  }
+
+  footer {
+    padding: 24px 52px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border);
+    font-size: 10px;
+    color: var(--muted);
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .footer-tag {
+    background: rgba(61,126,255,0.1);
+    border: 1px solid rgba(61,126,255,0.2);
+    color: var(--accent);
+    font-size: 10px;
+    padding: 4px 12px;
+    border-radius: 100px;
+    letter-spacing: 0.1em;
+  }
+
+  @media (max-width: 880px) {
+    .hero, .body-layout { grid-template-columns: 1fr; }
+    section { padding: 28px 24px; }
+    .hero { padding: 32px 24px; }
+    .sidebar { padding: 24px; }
+    .wallet-row, .screens-grid, .biz-row { grid-template-columns: 1fr; }
+    footer { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <div class="pill">Análise de Produto · Bitcoin · Auto-Custódia</div>
+    <h1>Gerir <span class="hl">múltiplas<br>carteiras</span> sem abrir<br>mão da <span class="hl2">soberania</span>.</h1>
+    <p class="hero-desc">Quem leva Bitcoin a sério acaba com Muun, Sparrow, Coldcard e mais — cada uma com um propósito diferente. <strong>O problema: não existe um painel único que agregue tudo sem pedir as chaves privadas.</strong> Essa é a fricção que impede adoção.</p>
+
+    <div class="pain-stmt">
+      <div class="pain-line">
+        <span class="pain-emoji">😤</span>
+        <div class="pain-text">
+          <strong>Troca constante de apps</strong>
+          Para ver o saldo total, o usuário abre 3, 4 apps diferentes. Cada um com sua interface, sua lógica.
+        </div>
+      </div>
+      <div class="pain-line">
+        <span class="pain-emoji">🔐</span>
+        <div class="pain-text">
+          <strong>Resistência a exchange / custodial</strong>
+          Quem entende de auto-custódia não quer colocar Bitcoin em exchange. Os trackers existentes empurram para isso.
+        </div>
+      </div>
+      <div class="pain-line">
+        <span class="pain-emoji">📊</span>
+        <div class="pain-text">
+          <strong>Nenhuma visão consolidada em BTC</strong>
+          Ferramentas de portfólio mostram valor em USD/BRL. O holder de Bitcoin quer ver tudo em sats.
+        </div>
+      </div>
+      <div class="pain-line">
+        <span class="pain-emoji">🛠</span>
+        <div class="pain-text">
+          <strong>Fricção técnica = barreira de adoção</strong>
+          xpub, UTXO, derivation path — configurar um watch-only correto exige conhecimento profundo.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="score-panel">
+    <div class="sp-title">Score da Oportunidade</div>
+    <div class="sp-row">
+      <div class="sp-label"><span class="sp-name">Dor real</span><span class="sp-val">10/10</span></div>
+      <div class="sp-bar"><div class="sp-fill" style="width:100%; background: linear-gradient(90deg,#3d7eff,#7b5fff)"></div></div>
+    </div>
+    <div class="sp-row">
+      <div class="sp-label"><span class="sp-name">Público nichado</span><span class="sp-val">8/10</span></div>
+      <div class="sp-bar"><div class="sp-fill" style="width:80%; background: linear-gradient(90deg,#3d7eff,#7b5fff)"></div></div>
+    </div>
+    <div class="sp-row">
+      <div class="sp-label"><span class="sp-name">Soluções existentes</span><span class="sp-val">4/10 ← bom</span></div>
+      <div class="sp-bar"><div class="sp-fill" style="width:40%; background: linear-gradient(90deg,#3d7eff,#7b5fff)"></div></div>
+    </div>
+    <div class="sp-row">
+      <div class="sp-label"><span class="sp-name">Complexidade técnica</span><span class="sp-val">7/10</span></div>
+      <div class="sp-bar"><div class="sp-fill" style="width:70%; background: linear-gradient(90deg,#ff8c3d,#ffd166)"></div></div>
+    </div>
+    <div class="sp-row">
+      <div class="sp-label"><span class="sp-name">Potencial B2B</span><span class="sp-val">9/10</span></div>
+      <div class="sp-bar"><div class="sp-fill" style="width:90%; background: linear-gradient(90deg,#2ecc8f,#3d7eff)"></div></div>
+    </div>
+    <div class="sp-verdict">
+      <strong>Veredito</strong>
+      Produto de alta utilidade para um público que paga por privacidade e soberania. Modelo freemium funciona bem aqui.
+    </div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="body-layout">
+<div class="main">
+
+<!-- AS CARTEIRAS E SEUS PAPÉIS -->
+<section>
+  <div class="sec-tag">O Ecossistema</div>
+  <h2>Por que o bitcoiner sério usa múltiplas carteiras?</h2>
+  <p>Não é por falta de opção — é por <strong>design intencional de segurança</strong>. Cada carteira tem uma função específica na estratégia de auto-custódia. O problema é que gerenciar esse ecossistema fragmentado é extremamente trabalhoso.</p>
+
+  <div class="wallet-row">
+    <div class="w-card">
+      <span class="w-icon">📱</span>
+      <div class="w-name">Muun Wallet</div>
+      <div class="w-type">Mobile · Onchain + Lightning</div>
+      <ul class="w-points">
+        <li>Pagamentos do dia a dia</li>
+        <li>Lightning automático</li>
+        <li>2-of-2 multisig nativo</li>
+        <li>Não usa seed phrase padrão</li>
+        <li>Watch-only: limitado</li>
+      </ul>
+    </div>
+    <div class="w-card">
+      <span class="w-icon">🖥</span>
+      <div class="w-name">Sparrow Wallet</div>
+      <div class="w-type">Desktop · Controle avançado</div>
+      <ul class="w-points">
+        <li>UTXO management completo</li>
+        <li>CoinJoin (Whirlpool)</li>
+        <li>Hardware wallet coordinator</li>
+        <li>Suporte a nó próprio</li>
+        <li>Watch-only: excelente</li>
+      </ul>
+    </div>
+    <div class="w-card">
+      <span class="w-icon">🔒</span>
+      <div class="w-name">Coldcard / Jade</div>
+      <div class="w-type">Hardware · Armazenamento frio</div>
+      <ul class="w-points">
+        <li>Chaves 100% offline</li>
+        <li>Multisig air-gapped</li>
+        <li>PSBT signing</li>
+        <li>Longo prazo / grandes valores</li>
+        <li>Watch-only via xpub</li>
+      </ul>
+    </div>
+  </div>
+
+  <p style="margin-top:16px">Além dessas, muitos usam também <strong>Phoenix/Zeus</strong> para Lightning mais avançado, <strong>BlueWallet</strong> como alternativa mobile e <strong>Liana</strong> para herança. São 3 a 6 apps abertos para ter uma visão completa do patrimônio.</p>
+</section>
+
+<!-- MAPA DE FRICÇÃO -->
+<section>
+  <div class="sec-tag">Mapa de Fricção</div>
+  <h2>Onde o usuário sofre hoje vs. o que deveria ser.</h2>
+
+  <table class="friction-table">
+    <thead>
+      <tr>
+        <th style="width:28%">Cenário</th>
+        <th style="width:10%">Dor</th>
+        <th style="width:31%">Como é hoje</th>
+        <th style="width:31%">Como deveria ser</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="scenario">Ver saldo total em BTC</td>
+        <td><span class="badge alto">Alta</span></td>
+        <td class="today">Abre Muun → anota. Abre Sparrow → soma. Abre app hardware → mais um número.</td>
+        <td class="ideal">Dashboard único. Saldo total em BTC + sats + BRL/USD. Atualizado.</td>
+      </tr>
+      <tr>
+        <td class="scenario">Verificar transação recente</td>
+        <td><span class="badge medio">Média</span></td>
+        <td class="today">Qual carteira foi? Abre uma, não está. Abre outra. Encontra na terceira.</td>
+        <td class="ideal">Histórico unificado com tag de qual carteira, valor em BTC e fiat na época.</td>
+      </tr>
+      <tr>
+        <td class="scenario">Configurar watch-only</td>
+        <td><span class="badge alto">Alta</span></td>
+        <td class="today">Encontrar xpub no hardware. Exportar. Importar no BlueWallet. Repetir por tipo de endereço (segwit, taproot).</td>
+        <td class="ideal">QR scan ou clipboard → detecta tipo automaticamente → adiciona ao dashboard.</td>
+      </tr>
+      <tr>
+        <td class="scenario">Calcular P&amp;L do portfólio</td>
+        <td><span class="badge alto">Alta</span></td>
+        <td class="today">Exportar CSV de cada carteira. Abrir planilha. Calcular preço médio de entrada manualmente.</td>
+        <td class="ideal">Importa histórico via xpub/endereço. Calcula P&amp;L automático com preço histórico.</td>
+      </tr>
+      <tr>
+        <td class="scenario">Detectar fee alta antes de enviar</td>
+        <td><span class="badge medio">Média</span></td>
+        <td class="today">Verifica mempool.space manualmente. Volta pro app. Estima. Às vezes erra.</td>
+        <td class="ideal">Fee estimada em sats/vB direto no painel. Alerta se mempool congestionado.</td>
+      </tr>
+      <tr>
+        <td class="scenario">Compartilhar portfólio com contador</td>
+        <td><span class="badge alto">Alta</span></td>
+        <td class="today">Não compartilha — risco de privacidade. Ou exporta dados manualmente por carteira.</td>
+        <td class="ideal">Link de leitura auditado, sem revelar xpub completo. Exporta relatório por período.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ARQUITETURA DO PRODUTO -->
+<section>
+  <div class="sec-tag">Conceito de Produto</div>
+  <h2>SovereignFolio — visão unificada sem custódia.</h2>
+  <p>O princípio central: <strong>nunca pedir chave privada, seed ou xpub completo desnecessariamente</strong>. Trabalhar apenas com dados públicos da blockchain e xpub read-only. O produto é 100% watch-only — vê tudo, não gasta nada.</p>
+
+  <div class="arch-stack">
+    <div class="arch-row">
+      <div class="arch-label">Input</div>
+      <div class="arch-body"><strong>Adicionar carteira:</strong> endereço público, xpub/ypub/zpub, ou descriptor (Sparrow/Liana). Scan QR ou paste. Detecta tipo automaticamente.</div>
+      <div class="arch-tag"><span>read-only</span></div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label">Blockchain</div>
+      <div class="arch-body"><strong>Sync via Electrum server ou nó próprio.</strong> Alternativa: API pública (mempool.space, Blockstream Esplora). Zero custódia — só leitura de dados públicos.</div>
+      <div class="arch-tag"><span>trustless</span></div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label">Dashboard</div>
+      <div class="arch-body"><strong>Visão consolidada:</strong> saldo total em BTC + sats + fiat, por carteira e total. Histórico unificado. P&amp;L com preço histórico. Gráfico de acumulação.</div>
+      <div class="arch-tag"><span>BTC-first</span></div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label">Inteligência</div>
+      <div class="arch-body"><strong>Alertas:</strong> transação detectada, fee alta, timelock próximo (Liana), saldo abaixo do threshold. Mempool status em tempo real.</div>
+      <div class="arch-tag"><span>proativo</span></div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label">Privacidade</div>
+      <div class="arch-body"><strong>Dados ficam locais</strong> (opção self-hosted) ou criptografados. Sem conta obrigatória no plano free. Conecta ao seu próprio nó Electrum.</div>
+      <div class="arch-tag"><span>soberania</span></div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label">Exportação</div>
+      <div class="arch-body"><strong>Para IR e contador:</strong> relatório de transações por período, preço médio de aquisição, P&amp;L realizado. Formato CSV e PDF. Integração futura com BitIR Brasil.</div>
+      <div class="arch-tag"><span>compliance</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- TELAS CONCEITUAIS -->
+<section>
+  <div class="sec-tag">Telas Conceituais</div>
+  <h2>Como o produto se pareceria na prática.</h2>
+
+  <div class="screens-grid">
+    <div class="screen-mock" style="--c: #3d7eff">
+      <div class="screen-name">Dashboard Principal</div>
+      <div class="mock-line w50"></div>
+      <div class="mock-num" style="color: #3d7eff">₿ 0.4821</div>
+      <div class="mock-line w30"></div>
+      <div style="height:8px"></div>
+      <div class="mock-line w90 hl"></div>
+      <div class="mock-line w70"></div>
+      <div class="mock-line w80"></div>
+      <div class="mock-line w60"></div>
+      <div class="screen-desc">Saldo total consolidado em BTC, sats e BRL. Cards por carteira com saldo individual.</div>
+    </div>
+
+    <div class="screen-mock" style="--c: #2ecc8f">
+      <div class="screen-name">Histórico Unificado</div>
+      <div class="mock-line w40"></div>
+      <div style="height:6px"></div>
+      <div class="mock-line w100 hl2"></div>
+      <div class="mock-line w90"></div>
+      <div class="mock-line w100 hl2"></div>
+      <div class="mock-line w80"></div>
+      <div class="mock-line w100 hl2"></div>
+      <div class="mock-line w70"></div>
+      <div class="screen-desc">Todas as transações de todas as carteiras numa linha do tempo única. Tag de origem.</div>
+    </div>
+
+    <div class="screen-mock" style="--c: #ffd166">
+      <div class="screen-name">P&amp;L e Acumulação</div>
+      <div class="mock-line w50"></div>
+      <div class="mock-num" style="color: #ffd166; font-size:14px">+₿ 0.0231 este mês</div>
+      <div class="mock-line w70"></div>
+      <div class="mock-line w90"></div>
+      <div class="mock-line w60"></div>
+      <div class="mock-line w80"></div>
+      <div class="screen-desc">Preço médio de entrada, P&amp;L realizado/não realizado. Gráfico de acumulação de sats.</div>
+    </div>
+
+    <div class="screen-mock" style="--c: #ff8c3d">
+      <div class="screen-name">Alertas e Mempool</div>
+      <div class="mock-line w40"></div>
+      <div style="height:4px"></div>
+      <div class="mock-line w100" style="background: rgba(255,140,61,0.3); height:24px; border-radius:4px; margin-bottom:6px"></div>
+      <div class="mock-line w90"></div>
+      <div class="mock-line w80"></div>
+      <div class="mock-line w70"></div>
+      <div class="screen-desc">Status do mempool em tempo real. Alertas de transação detectada, fee alta, timelock.</div>
+    </div>
+  </div>
+</section>
+
+<!-- MODELO DE NEGÓCIO -->
+<section>
+  <div class="sec-tag">Modelo de Negócio</div>
+  <h2>Monetização que respeita a filosofia Bitcoin.</h2>
+  <p>A comunidade Bitcoin é cética em relação a serviços que monetizam dados. O modelo certo aqui é <strong>pagar pelo software, não pelos seus dados</strong>. Isso vira um diferencial competitivo, não só uma restrição.</p>
+
+  <div class="biz-row">
+    <div class="biz-item">
+      <span class="biz-icon">🆓</span>
+      <div class="biz-name">Free / Open-source</div>
+      <div class="biz-desc">Até 3 carteiras, dashboard básico, sem alertas. Self-hostável no próprio servidor. Conquista a comunidade técnica.</div>
+      <div class="biz-price">R$ 0 · open source</div>
+    </div>
+    <div class="biz-item">
+      <span class="biz-icon">⚡</span>
+      <div class="biz-name">Pro — Individual</div>
+      <div class="biz-desc">Carteiras ilimitadas, P&amp;L histórico, alertas em tempo real, exportação para IR, mempool dashboard, suporte Lightning.</div>
+      <div class="biz-price">R$ 29–49 / mês</div>
+    </div>
+    <div class="biz-item">
+      <span class="biz-icon">🏛</span>
+      <div class="biz-name">B2B — Consultores</div>
+      <div class="biz-desc">Acesso multi-cliente para consultores Bitcoin e gestores de patrimônio. Dashboard por cliente, relatórios white-label.</div>
+      <div class="biz-price">R$ 199–599 / mês</div>
+    </div>
+    <div class="biz-item">
+      <span class="biz-icon">🔗</span>
+      <div class="biz-name">Integração BitLegacy</div>
+      <div class="biz-desc">Módulo de herança integrado com Liana. Portfólio atual → plano sucessório automático. Upsell natural do produto anterior.</div>
+      <div class="biz-price">Bundle com BitLegacy</div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /main -->
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+
+  <div class="sb-block">
+    <div class="sb-title">Dados do Mercado</div>
+    <div class="kv"><span class="kv-k">Usuários auto-custódia BR</span><span class="kv-v b">~1–2M</span></div>
+    <div class="kv"><span class="kv-k">Trackers para multi-wallet</span><span class="kv-v r">Quase nenhum BTC-only</span></div>
+    <div class="kv"><span class="kv-k">Soluções watch-only fáceis</span><span class="kv-v r">Muito técnicas</span></div>
+    <div class="kv"><span class="kv-k">Rotki (mais próximo)</span><span class="kv-v">Open-source, complexo</span></div>
+    <div class="kv"><span class="kv-k">CoinStats, Delta</span><span class="kv-v r">Empurra para exchange</span></div>
+    <div class="kv"><span class="kv-k">Idioma BR disponível</span><span class="kv-v r">Nenhum relevante</span></div>
+  </div>
+
+  <div class="sb-block">
+    <div class="sb-title">Concorrência (Bitcoin-only)</div>
+    <div class="comp-header">
+      <span>Ferramenta</span>
+      <span>Multi</span>
+      <span>Fácil</span>
+      <span>PT-BR</span>
+    </div>
+    <div class="comp-item">
+      <span class="comp-name">Sparrow</span>
+      <div class="dot-check p">~</div>
+      <div class="dot-check n">✗</div>
+      <div class="dot-check n">✗</div>
+    </div>
+    <div class="comp-item">
+      <span class="comp-name">BlueWallet</span>
+      <div class="dot-check y">✓</div>
+      <div class="dot-check p">~</div>
+      <div class="dot-check n">✗</div>
+    </div>
+    <div class="comp-item">
+      <span class="comp-name">Rotki</span>
+      <div class="dot-check y">✓</div>
+      <div class="dot-check n">✗</div>
+      <div class="dot-check n">✗</div>
+    </div>
+    <div class="comp-item">
+      <span class="comp-name">CoinStats</span>
+      <div class="dot-check y">✓</div>
+      <div class="dot-check y">✓</div>
+      <div class="dot-check n">✗</div>
+    </div>
+    <div class="comp-item">
+      <span class="comp-name" style="color:var(--accent); font-weight:700">SovereignFolio</span>
+      <div class="dot-check y">✓</div>
+      <div class="dot-check y">✓</div>
+      <div class="dot-check y">✓</div>
+    </div>
+  </div>
+
+  <div class="sb-block">
+    <div class="insight-card">
+      <strong>💡 Sinergia com BitLegacy</strong>
+      Os dois produtos atendem o mesmo perfil: bitcoiner que leva auto-custódia a sério. SovereignFolio resolve o dia a dia; BitLegacy resolve o longo prazo. Bundle natural, base de clientes compartilhada.
+    </div>
+  </div>
+
+  <div class="sb-block">
+    <div class="sb-title">Próximos Passos</div>
+    <div class="action-list">
+      <div class="action-item">
+        <span class="action-n">01</span>
+        <span>Protótipo no-code com xpub + mempool.space API. Valida a UX sem backend complexo.</span>
+      </div>
+      <div class="action-item">
+        <span class="action-n">02</span>
+        <span>Testar com 5 bitcoiners do círculo do amigo consultor. Feedback qualitativo primeiro.</span>
+      </div>
+      <div class="action-item">
+        <span class="action-n">03</span>
+        <span>Backend Node.js + PostgreSQL (sua stack). Conecta ao Blockstream Esplora como fonte.</span>
+      </div>
+      <div class="action-item">
+        <span class="action-n">04</span>
+        <span>Integrar com BitLegacy: portfólio atual alimenta plano de herança automaticamente.</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div><!-- /body-layout -->
+
+<footer>
+  <span>Análise gerada com base em pesquisa de mercado · Abril 2026</span>
+  <div class="footer-tag">SovereignFolio · Conceito de Produto</div>
+</footer>
+
+</body>
+</html>

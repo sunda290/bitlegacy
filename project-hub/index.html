@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BitLegacy · Project Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,300;0,600;1,300;1,600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f2ede6;
+  --paper:#faf7f2;
+  --white:#ffffff;
+  --ink:#1c1712;
+  --muted:#8c7e6e;
+  --muted2:#c4b8a8;
+  --border:#e0d8cc;
+  --border2:#ccc0b0;
+  --gold:#9a6c1a;
+  --gold-bg:#fdf3e0;
+  --gold-border:rgba(154,108,26,0.2);
+  --green:#1a6e3c;
+  --green-bg:#e8f5ee;
+  --red:#8b1c1c;
+  --red-bg:#faeaea;
+  --blue:#1c3a8a;
+  --blue-bg:#eaeefc;
+  --orange:#8a4a1c;
+  --orange-bg:#fdf0e6;
+  --purple:#5a1c8a;
+  --purple-bg:#f0eafc;
+}
+
+body{background:var(--bg);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.6;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{
+  position:fixed;top:0;left:0;bottom:0;
+  width:220px;
+  background:var(--ink);
+  display:flex;flex-direction:column;
+  z-index:100;
+  overflow-y:auto;
+}
+
+.sb-logo{
+  padding:24px 20px 20px;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+}
+
+.sb-logo-name{
+  font-family:'Syne',sans-serif;
+  font-size:16px;font-weight:800;
+  color:#faf7f2;
+  letter-spacing:-0.01em;
+  margin-bottom:3px;
+}
+
+.sb-logo-sub{
+  font-size:9px;letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:rgba(250,247,242,0.3);
+}
+
+.sb-section{
+  padding:16px 12px 6px;
+  font-size:8px;letter-spacing:0.25em;
+  text-transform:uppercase;
+  color:rgba(250,247,242,0.25);
+}
+
+.sb-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 16px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:rgba(250,247,242,0.5);
+  cursor:pointer;
+  border-left:2px solid transparent;
+  transition:all 0.15s;
+  text-decoration:none;
+}
+
+.sb-item:hover{color:rgba(250,247,242,0.85);background:rgba(255,255,255,0.04)}
+.sb-item.on{color:#faf7f2;border-left-color:var(--gold);background:rgba(154,108,26,0.1)}
+
+.sb-item .icon{font-size:13px;flex-shrink:0}
+.sb-item .label{flex:1}
+.sb-item .badge{
+  font-size:9px;padding:1px 7px;
+  border-radius:100px;
+  background:rgba(154,108,26,0.2);
+  color:#c9a84c;
+  font-weight:600;
+}
+
+.sb-divider{height:1px;background:rgba(255,255,255,0.06);margin:8px 16px}
+
+.sb-bottom{
+  margin-top:auto;
+  padding:16px;
+  border-top:1px solid rgba(255,255,255,0.08);
+}
+
+.sb-status{
+  display:flex;align-items:center;gap:8px;
+  font-size:10px;
+  color:rgba(250,247,242,0.4);
+}
+
+.sb-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:#2ecc84;
+  animation:blink 2s infinite;
+}
+
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* MAIN */
+.main{
+  margin-left:220px;
+  min-height:100vh;
+}
+
+/* TOPBAR */
+.topbar{
+  background:var(--paper);
+  border-bottom:1px solid var(--border);
+  padding:14px 32px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  position:sticky;top:0;z-index:50;
+}
+
+.topbar-title{
+  font-family:'Syne',sans-serif;
+  font-size:13px;font-weight:700;
+  color:var(--ink);
+}
+
+.topbar-right{display:flex;gap:10px;align-items:center}
+
+.tb-btn{
+  background:none;
+  border:1px solid var(--border2);
+  color:var(--muted);
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;
+  padding:6px 14px;
+  border-radius:3px;
+  cursor:pointer;
+  transition:all 0.15s;
+}
+
+.tb-btn:hover{border-color:var(--gold);color:var(--gold)}
+.tb-btn.primary{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.tb-btn.primary:hover{background:#2c2820}
+
+/* PAGES */
+.page{display:none;padding:32px}
+.page.on{display:block}
+
+/* DASHBOARD */
+.kpi-row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+  margin-bottom:28px;
+}
+
+.kpi{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:18px 20px;
+}
+
+.kpi-val{
+  font-family:'Syne',sans-serif;
+  font-size:28px;font-weight:800;
+  color:var(--ink);
+  margin-bottom:3px;
+}
+
+.kpi-label{
+  font-size:9px;text-transform:uppercase;
+  letter-spacing:0.18em;color:var(--muted);
+}
+
+.kpi-sub{
+  font-size:10px;color:var(--green);
+  margin-top:6px;font-weight:500;
+}
+
+.dash-grid{
+  display:grid;
+  grid-template-columns:1fr 320px;
+  gap:20px;
+}
+
+/* Cards genéricos */
+.card{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:6px;
+  overflow:hidden;
+  margin-bottom:16px;
+}
+
+.card-hdr{
+  padding:14px 18px;
+  border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+
+.card-title{
+  font-family:'Syne',sans-serif;
+  font-size:11px;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.12em;
+  color:var(--ink);
+}
+
+.card-body{padding:16px 18px}
+
+/* Tasks */
+.task-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:10px 0;
+  border-bottom:1px solid var(--border);
+}
+
+.task-item:last-child{border-bottom:none}
+
+.task-check{
+  width:16px;height:16px;
+  border:1.5px solid var(--border2);
+  border-radius:3px;
+  flex-shrink:0;
+  margin-top:1px;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;
+  transition:all 0.15s;
+}
+
+.task-check.done{background:var(--green);border-color:var(--green);color:white}
+
+.task-body{flex:1}
+.task-title{font-size:12px;color:var(--ink);font-weight:500;margin-bottom:2px}
+.task-title.done{text-decoration:line-through;color:var(--muted)}
+.task-meta{font-size:10px;color:var(--muted)}
+
+.task-tag{
+  font-size:9px;padding:2px 8px;border-radius:100px;
+  font-weight:600;letter-spacing:0.08em;
+  white-space:nowrap;flex-shrink:0;
+  margin-top:1px;
+}
+
+.tag-urgent{background:var(--red-bg);color:var(--red)}
+.tag-high{background:var(--orange-bg);color:var(--orange)}
+.tag-medium{background:var(--gold-bg);color:var(--gold)}
+.tag-low{background:var(--green-bg);color:var(--green)}
+
+/* Timeline reuniões */
+.meeting-item{
+  display:grid;
+  grid-template-columns:80px 1fr;
+  gap:16px;
+  padding:12px 0;
+  border-bottom:1px solid var(--border);
+  align-items:start;
+}
+
+.meeting-item:last-child{border-bottom:none}
+
+.meeting-date{
+  font-family:'Fraunces',serif;
+  font-size:24px;font-weight:600;
+  color:var(--gold);
+  line-height:1;
+}
+
+.meeting-month{
+  font-size:9px;text-transform:uppercase;
+  letter-spacing:0.15em;color:var(--muted);
+  margin-top:2px;
+}
+
+.meeting-title{font-weight:600;font-size:12px;color:var(--ink);margin-bottom:3px}
+.meeting-sub{font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:6px}
+.meeting-tags{display:flex;gap:5px;flex-wrap:wrap}
+
+/* Pessoas */
+.person-row{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 0;
+  border-bottom:1px solid var(--border);
+}
+
+.person-row:last-child{border-bottom:none}
+
+.person-avatar{
+  width:32px;height:32px;
+  border-radius:50%;
+  background:var(--gold-bg);
+  border:1px solid var(--gold-border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fraunces',serif;
+  font-size:13px;color:var(--gold);
+  flex-shrink:0;font-weight:600;
+}
+
+.person-name{font-weight:600;font-size:12px;color:var(--ink);margin-bottom:1px}
+.person-role{font-size:10px;color:var(--muted)}
+.person-status{
+  margin-left:auto;
+  font-size:9px;padding:2px 8px;border-radius:100px;
+  font-weight:600;
+}
+
+.st-ativo{background:var(--green-bg);color:var(--green)}
+.st-pendente{background:var(--gold-bg);color:var(--gold)}
+
+/* Documentos */
+.doc-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px;
+  background:var(--paper);
+  border:1px solid var(--border);
+  border-radius:5px;
+  margin-bottom:8px;
+  cursor:pointer;
+  transition:all 0.15s;
+  text-decoration:none;
+}
+
+.doc-item:hover{border-color:var(--gold);background:var(--gold-bg)}
+
+.doc-icon{font-size:20px;flex-shrink:0}
+.doc-info{flex:1}
+.doc-name{font-weight:600;font-size:12px;color:var(--ink);margin-bottom:2px}
+.doc-meta{font-size:10px;color:var(--muted)}
+.doc-date{font-size:10px;color:var(--muted);white-space:nowrap}
+
+/* Progress bar */
+.progress-wrap{margin-bottom:12px}
+.progress-label{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:5px}
+.progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;border-radius:2px;background:var(--gold);transition:width 0.5s ease}
+
+/* Pauta reunião */
+.pauta-item{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:10px 14px;
+  background:var(--paper);
+  border:1px solid var(--border);
+  border-radius:4px;
+  margin-bottom:8px;
+}
+
+.pauta-n{
+  font-family:'Fraunces',serif;
+  font-size:18px;color:var(--gold);
+  line-height:1;flex-shrink:0;
+  width:20px;padding-top:2px;
+}
+
+.pauta-title{font-weight:600;font-size:12px;color:var(--ink);margin-bottom:2px}
+.pauta-desc{font-size:11px;color:var(--muted);line-height:1.5}
+.pauta-dur{font-size:9px;color:var(--muted2);margin-top:3px}
+
+/* PROCESSAR TRANSCRIÇÃO */
+.upload-zone{
+  border:2px dashed var(--border2);
+  border-radius:8px;
+  padding:48px 32px;
+  text-align:center;
+  background:var(--white);
+  cursor:pointer;
+  transition:all 0.2s;
+  margin-bottom:20px;
+}
+
+.upload-zone:hover{border-color:var(--gold);background:var(--gold-bg)}
+
+.upload-icon{font-size:40px;margin-bottom:12px;display:block}
+.upload-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.upload-sub{font-size:12px;color:var(--muted);line-height:1.6}
+
+.input-area{
+  width:100%;
+  min-height:160px;
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:16px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:var(--ink);
+  resize:vertical;
+  outline:none;
+  transition:border-color 0.15s;
+  margin-bottom:12px;
+}
+
+.input-area:focus{border-color:var(--gold)}
+
+.process-btn{
+  background:var(--ink);
+  color:var(--paper);
+  border:none;
+  font-family:'Syne',sans-serif;
+  font-size:12px;font-weight:700;
+  padding:12px 28px;
+  border-radius:4px;
+  cursor:pointer;
+  letter-spacing:0.05em;
+  transition:all 0.2s;
+  display:flex;align-items:center;gap:8px;
+}
+
+.process-btn:hover{background:#2c2820;transform:translateY(-1px)}
+
+/* Output da IA */
+.ai-output{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:6px;
+  overflow:hidden;
+  margin-top:20px;
+  display:none;
+}
+
+.ai-output.visible{display:block}
+
+.ai-output-hdr{
+  background:var(--ink);
+  color:var(--paper);
+  padding:12px 18px;
+  font-family:'Syne',sans-serif;
+  font-size:11px;font-weight:700;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  display:flex;align-items:center;gap:8px;
+}
+
+.ai-section{
+  padding:16px 18px;
+  border-bottom:1px solid var(--border);
+}
+
+.ai-section:last-child{border-bottom:none}
+
+.ai-section-title{
+  font-family:'Syne',sans-serif;
+  font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.15em;
+  color:var(--gold);
+  margin-bottom:10px;
+}
+
+.ai-list{display:flex;flex-direction:column;gap:6px}
+
+.ai-list-item{
+  display:flex;gap:8px;align-items:flex-start;
+  font-size:11px;color:var(--ink);line-height:1.5;
+}
+
+.ai-bullet{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--gold);flex-shrink:0;margin-top:5px;
+}
+
+/* INSTRUÇÃO */
+.instrucao{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:8px;
+  overflow:hidden;
+  margin-bottom:20px;
+}
+
+.instrucao-hdr{
+  background:var(--ink);
+  color:var(--paper);
+  padding:16px 20px;
+  font-family:'Syne',sans-serif;
+  font-size:12px;font-weight:700;
+  letter-spacing:0.08em;
+}
+
+.instrucao-body{padding:20px}
+
+.step-row{
+  display:grid;
+  grid-template-columns:36px 1fr;
+  gap:14px;
+  align-items:start;
+  margin-bottom:16px;
+}
+
+.step-num{
+  font-family:'Fraunces',serif;
+  font-size:26px;color:var(--gold);
+  line-height:1;text-align:center;
+}
+
+.step-title{font-weight:600;font-size:13px;color:var(--ink);margin-bottom:3px}
+.step-desc{font-size:11px;color:var(--muted);line-height:1.6}
+
+.code-box{
+  background:var(--ink);
+  color:#a8d8b8;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;
+  padding:12px 16px;
+  border-radius:4px;
+  margin-top:8px;
+  line-height:1.7;
+  white-space:pre-wrap;
+}
+
+.folder-tree{
+  background:var(--paper);
+  border:1px solid var(--border);
+  border-radius:5px;
+  padding:14px 16px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  line-height:1.8;
+  color:var(--muted);
+  margin-top:8px;
+}
+
+.folder-tree .folder{color:var(--gold);font-weight:500}
+.folder-tree .file{color:var(--ink)}
+.folder-tree .comment{color:var(--muted2);font-size:10px}
+
+/* Alerta */
+.alerta{
+  padding:14px 18px;
+  border-radius:5px;
+  font-size:11px;
+  line-height:1.7;
+  margin-bottom:16px;
+}
+
+.alerta.gold{background:var(--gold-bg);border:1px solid var(--gold-border)}
+.alerta.green{background:var(--green-bg);border:1px solid rgba(26,110,60,0.2)}
+.alerta strong{display:block;font-size:9px;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:4px}
+.alerta.gold strong{color:var(--gold)}
+.alerta.green strong{color:var(--green)}
+
+/* Responsive */
+@media(max-width:900px){
+  .sidebar{width:180px}
+  .main{margin-left:180px}
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .dash-grid{grid-template-columns:1fr}
+}
+
+@media(max-width:660px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-name">BitLegacy</div>
+    <div class="sb-logo-sub">Project Hub</div>
+  </div>
+
+  <div class="sb-section">Visão geral</div>
+  <div class="sb-item on" onclick="nav('dashboard',this)">
+    <span class="icon">◈</span>
+    <span class="label">Dashboard</span>
+  </div>
+
+  <div class="sb-section">Projeto</div>
+  <div class="sb-item" onclick="nav('tarefas',this)">
+    <span class="icon">✦</span>
+    <span class="label">Tarefas</span>
+    <span class="badge">6</span>
+  </div>
+  <div class="sb-item" onclick="nav('reunioes',this)">
+    <span class="icon">◎</span>
+    <span class="label">Reuniões</span>
+  </div>
+  <div class="sb-item" onclick="nav('pessoas',this)">
+    <span class="icon">◯</span>
+    <span class="label">Pessoas</span>
+  </div>
+  <div class="sb-item" onclick="nav('documentos',this)">
+    <span class="icon">▣</span>
+    <span class="label">Documentos</span>
+  </div>
+
+  <div class="sb-divider"></div>
+
+  <div class="sb-section">Automação</div>
+  <div class="sb-item" onclick="nav('processar',this)">
+    <span class="icon">⬡</span>
+    <span class="label">Processar call</span>
+  </div>
+  <div class="sb-item" onclick="nav('configurar',this)">
+    <span class="icon">◇</span>
+    <span class="label">Como configurar</span>
+  </div>
+
+  <div class="sb-bottom">
+    <div class="sb-status">
+      <div class="sb-dot"></div>
+      Sistema ativo
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">Dashboard</div>
+    <div class="topbar-right">
+      <button class="tb-btn" onclick="nav('processar', document.querySelector('[onclick*=processar]'))">+ Nova transcrição</button>
+      <button class="tb-btn primary">↑ Salvar no Drive</button>
+    </div>
+  </div>
+
+  <!-- ═══ DASHBOARD ═══ -->
+  <div id="page-dashboard" class="page on">
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="kpi-val">1</div>
+        <div class="kpi-label">Reuniões realizadas</div>
+        <div class="kpi-sub">↑ +1 esta semana</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">6</div>
+        <div class="kpi-label">Tarefas abertas</div>
+        <div class="kpi-sub" style="color:var(--orange)">2 urgentes</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">4</div>
+        <div class="kpi-label">Participantes</div>
+        <div class="kpi-sub">Filipe, Jeff, Thiago, André</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">3</div>
+        <div class="kpi-label">Protótipos criados</div>
+        <div class="kpi-sub" style="color:var(--green)">Dead Man Switch ✓</div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <div>
+        <!-- Progresso -->
+        <div class="card">
+          <div class="card-hdr">
+            <div class="card-title">Progresso do projeto</div>
+            <span style="font-size:10px;color:var(--muted)">Fase 1 de 4</span>
+          </div>
+          <div class="card-body">
+            <div class="progress-wrap">
+              <div class="progress-label"><span>Descoberta & Validação</span><span style="color:var(--green)">85%</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div>
+            </div>
+            <div class="progress-wrap">
+              <div class="progress-label"><span>Protótipo MVP</span><span>30%</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:30%"></div></div>
+            </div>
+            <div class="progress-wrap">
+              <div class="progress-label"><span>Parceria jurídica</span><span>10%</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:10%"></div></div>
+            </div>
+            <div class="progress-wrap">
+              <div class="progress-label"><span>Lançamento</span><span style="color:var(--muted)">0%</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Próximas tarefas -->
+        <div class="card">
+          <div class="card-hdr">
+            <div class="card-title">Tarefas prioritárias</div>
+            <button class="tb-btn" onclick="nav('tarefas',null)" style="font-size:9px;padding:4px 10px">ver todas</button>
+          </div>
+          <div class="card-body">
+            <div class="task-item">
+              <div class="task-check done" onclick="toggleTask(this)">✓</div>
+              <div class="task-body">
+                <div class="task-title done">Entrar no grupo do Thiago</div>
+                <div class="task-meta">Mensagem enviada · 14 Abr</div>
+              </div>
+              <span class="task-tag tag-urgent">Urgente</span>
+            </div>
+            <div class="task-item">
+              <div class="task-check" onclick="toggleTask(this)"></div>
+              <div class="task-body">
+                <div class="task-title">Pedir contato do Fernando Lopes (advogado)</div>
+                <div class="task-meta">Responsável: André · Via Thiago</div>
+              </div>
+              <span class="task-tag tag-urgent">Urgente</span>
+            </div>
+            <div class="task-item">
+              <div class="task-check" onclick="toggleTask(this)"></div>
+              <div class="task-body">
+                <div class="task-title">Ler artigo do Jeff (furadeira no joelho)</div>
+                <div class="task-meta">plebs.substack.com · ~3 min</div>
+              </div>
+              <span class="task-tag tag-high">Alta</span>
+            </div>
+            <div class="task-item">
+              <div class="task-check" onclick="toggleTask(this)"></div>
+              <div class="task-body">
+                <div class="task-title">Marcar 2ª reunião com Filipe (mais tempo)</div>
+                <div class="task-meta">Coordenar via Thiago</div>
+              </div>
+              <span class="task-tag tag-high">Alta</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <!-- Última reunião -->
+        <div class="card">
+          <div class="card-hdr"><div class="card-title">Última reunião</div></div>
+          <div class="card-body">
+            <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:var(--gold);margin-bottom:2px">14 Abr 2026</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:12px">41 min · Google Meet · 4 participantes</div>
+            <div style="font-size:11px;color:var(--ink);line-height:1.7;margin-bottom:12px">
+              Validação das dores: auto-custódia e herança. Ideia do Dead Man Switch gerada pelo Filipe. Jeff confirmou crescimento de ataques físicos a holders.
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <span class="task-tag tag-low">✓ Validado</span>
+              <span class="task-tag tag-medium">Dead Man Switch</span>
+              <span class="task-tag tag-high">BIP 65</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pessoas -->
+        <div class="card">
+          <div class="card-hdr"><div class="card-title">Equipe / Parceiros</div></div>
+          <div class="card-body">
+            <div class="person-row">
+              <div class="person-avatar">A</div>
+              <div>
+                <div class="person-name">André Oliveira</div>
+                <div class="person-role">Dev / Arquiteto do produto</div>
+              </div>
+              <span class="person-status st-ativo">Você</span>
+            </div>
+            <div class="person-row">
+              <div class="person-avatar">T</div>
+              <div>
+                <div class="person-name">Thiago (MKT Captain)</div>
+                <div class="person-role">Conector / Negócios</div>
+              </div>
+              <span class="person-status st-ativo">Ativo</span>
+            </div>
+            <div class="person-row">
+              <div class="person-avatar">F</div>
+              <div>
+                <div class="person-name">Filipe Iorio</div>
+                <div class="person-role">CriptoVerso / Estratégia</div>
+              </div>
+              <span class="person-status st-ativo">Ativo</span>
+            </div>
+            <div class="person-row">
+              <div class="person-avatar">J</div>
+              <div>
+                <div class="person-name">Jeff Bernar</div>
+                <div class="person-role">Revista Pleb's / OPSEC</div>
+              </div>
+              <span class="person-status st-ativo">Ativo</span>
+            </div>
+            <div class="person-row">
+              <div class="person-avatar">?</div>
+              <div>
+                <div class="person-name">Fernando Lopes</div>
+                <div class="person-role">Advogado Bitcoin / Trust Teles</div>
+              </div>
+              <span class="person-status st-pendente">Contato pendente</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TAREFAS ═══ -->
+  <div id="page-tarefas" class="page">
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">Todas as tarefas</div>
+        <button class="tb-btn primary" style="font-size:10px;padding:6px 14px">+ Nova tarefa</button>
+      </div>
+      <div class="card-body">
+        <div class="task-item">
+          <div class="task-check done" onclick="toggleTask(this)">✓</div>
+          <div class="task-body">
+            <div class="task-title done">Mandar mensagem de follow-up ao Thiago</div>
+            <div class="task-meta">Concluído · 14 Abr 2026</div>
+          </div>
+          <span class="task-tag tag-urgent">Urgente</span>
+        </div>
+        <div class="task-item">
+          <div class="task-check done" onclick="toggleTask(this)">✓</div>
+          <div class="task-body">
+            <div class="task-title done">Criar protótipo Dead Man Switch</div>
+            <div class="task-meta">Concluído · 14 Abr 2026 · SentinelMail v0.1</div>
+          </div>
+          <span class="task-tag tag-high">Alta</span>
+        </div>
+        <div class="task-item">
+          <div class="task-check" onclick="toggleTask(this)"></div>
+          <div class="task-body">
+            <div class="task-title">Pedir contato do Fernando Lopes (Trust Teles)</div>
+            <div class="task-meta">Via Thiago · Advogado âncora jurídico</div>
+          </div>
+          <span class="task-tag tag-urgent">Urgente</span>
+        </div>
+        <div class="task-item">
+          <div class="task-check" onclick="toggleTask(this)"></div>
+          <div class="task-body">
+            <div class="task-title">Ler artigo do Jeff — "Do Firewall à Furadeira no Joelho"</div>
+            <div class="task-meta">plebs.substack.com · Contexto de segurança física</div>
+          </div>
+          <span class="task-tag tag-high">Alta</span>
+        </div>
+        <div class="task-item">
+          <div class="task-check" onclick="toggleTask(this)"></div>
+          <div class="task-body">
+            <div class="task-title">Marcar 2ª reunião com Filipe com mais tempo</div>
+            <div class="task-meta">Filipe saiu cedo — muito a contribuir ainda</div>
+          </div>
+          <span class="task-tag tag-high">Alta</span>
+        </div>
+        <div class="task-item">
+          <div class="task-check" onclick="toggleTask(this)"></div>
+          <div class="task-body">
+            <div class="task-title">Atualizar análise BitLegacy com ideias da reunião</div>
+            <div class="task-meta">Adicionar: Dead Man Switch, módulo OPSEC, treinamento advogados</div>
+          </div>
+          <span class="task-tag tag-medium">Média</span>
+        </div>
+        <div class="task-item">
+          <div class="task-check" onclick="toggleTask(this)"></div>
+          <div class="task-body">
+            <div class="task-title">Tornar-se Liana Partner certificado</div>
+            <div class="task-meta">wizardsardine.com · Credibilidade técnica</div>
+          </div>
+          <span class="task-tag tag-medium">Média</span>
+        </div>
+        <div class="task-item">
+          <div class="task-check" onclick="toggleTask(this)"></div>
+          <div class="task-body">
+            <div class="task-title">Preparar proposta formal de parceria</div>
+            <div class="task-meta">Após 2ª reunião · Definir modalidade (equity vs prestador)</div>
+          </div>
+          <span class="task-tag tag-low">Baixa</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ REUNIÕES ═══ -->
+  <div id="page-reunioes" class="page">
+
+    <!-- Próxima reunião -->
+    <div class="alerta gold">
+      <strong>📅 Próxima reunião</strong>
+      A definir — Aguardando resposta do Thiago para marcar 2ª call com Filipe. Pauta sugerida abaixo.
+    </div>
+
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-hdr">
+        <div class="card-title">Pauta sugerida — 2ª Reunião</div>
+        <span style="font-size:10px;color:var(--muted)">~60 min</span>
+      </div>
+      <div class="card-body">
+        <div class="pauta-item">
+          <div class="pauta-n">1</div>
+          <div>
+            <div class="pauta-title">Demo do protótipo Dead Man Switch</div>
+            <div class="pauta-desc">Mostrar o SentinelMail v0.1 funcionando — estágios, confirmação de presença, integração com Liana.</div>
+            <div class="pauta-dur">⏱ 15 min</div>
+          </div>
+        </div>
+        <div class="pauta-item">
+          <div class="pauta-n">2</div>
+          <div>
+            <div class="pauta-title">Definir MVP mínimo com Filipe</div>
+            <div class="pauta-desc">Qual funcionalidade, se existisse hoje, já usariam com clientes? Priorizar escopo.</div>
+            <div class="pauta-dur">⏱ 15 min</div>
+          </div>
+        </div>
+        <div class="pauta-item">
+          <div class="pauta-n">3</div>
+          <div>
+            <div class="pauta-title">Introdução ao Fernando Lopes</div>
+            <div class="pauta-desc">Se o Thiago conseguir o contato, incluir na call ou apresentar o perfil dele.</div>
+            <div class="pauta-dur">⏱ 10 min</div>
+          </div>
+        </div>
+        <div class="pauta-item">
+          <div class="pauta-n">4</div>
+          <div>
+            <div class="pauta-title">Definir papel do André / modelo de parceria</div>
+            <div class="pauta-desc">Prestador de serviço, sócio técnico ou consultor. Formalizar a partir daqui.</div>
+            <div class="pauta-dur">⏱ 15 min</div>
+          </div>
+        </div>
+        <div class="pauta-item">
+          <div class="pauta-n">5</div>
+          <div>
+            <div class="pauta-title">Próximos passos e datas</div>
+            <div class="pauta-desc">Sair com prazo, responsável e entrega definida para cada item.</div>
+            <div class="pauta-dur">⏱ 5 min</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Histórico -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Histórico de reuniões</div></div>
+      <div class="card-body">
+        <div class="meeting-item">
+          <div>
+            <div class="meeting-date">14</div>
+            <div class="meeting-month">Abr 2026</div>
+          </div>
+          <div>
+            <div class="meeting-title">1ª Reunião — Exploratória BitLegacy</div>
+            <div class="meeting-sub">41 min · Google Meet · Filipe Iorio, Jeff Bernar, Thiago, André. Validação das dores, ideia do Dead Man Switch, foco no mercado brasileiro.</div>
+            <div class="meeting-tags">
+              <span class="task-tag tag-low">✓ Processada</span>
+              <span class="task-tag tag-medium">Dead Man Switch</span>
+              <span class="task-tag tag-medium">BIP 65</span>
+              <span class="task-tag tag-low">Validação ✓</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PESSOAS ═══ -->
+  <div id="page-pessoas" class="page">
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Todos os participantes</div></div>
+      <div class="card-body">
+        <div class="person-row" style="padding:16px 0">
+          <div class="person-avatar" style="width:44px;height:44px;font-size:16px">A</div>
+          <div style="flex:1">
+            <div class="person-name" style="font-size:14px">André Oliveira</div>
+            <div class="person-role">Desenvolvedor · Hamilton, Canadá</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:4px;line-height:1.5">Stack: Node.js + React + PostgreSQL. Experiência: FedEx (logística), Niagara Health. Papel atual: arquiteto do produto e dev principal.</div>
+          </div>
+          <span class="person-status st-ativo">Você</span>
+        </div>
+        <div class="person-row" style="padding:16px 0">
+          <div class="person-avatar" style="width:44px;height:44px;font-size:16px">T</div>
+          <div style="flex:1">
+            <div class="person-name" style="font-size:14px">Thiago (MKT Captain)</div>
+            <div class="person-role">Conector / Estratégia de Negócio</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:4px;line-height:1.5">Ponto de contato principal. Articula pessoas, pensa em modelo de receita. Foi quem fez a ponte com Filipe e Jeff. Conservador, escola austríaca.</div>
+          </div>
+          <span class="person-status st-ativo">Parceiro</span>
+        </div>
+        <div class="person-row" style="padding:16px 0">
+          <div class="person-avatar" style="width:44px;height:44px;font-size:16px">F</div>
+          <div style="flex:1">
+            <div class="person-name" style="font-size:14px">Filipe Iorio da Silva</div>
+            <div class="person-role">Fundador CriptoVerso · Rio de Janeiro · UFRJ</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:4px;line-height:1.5">Bitcoiner raiz, técnico avançado. Palestrante (BitcoinXP). Tem protocolo pessoal de herança funcionando. Criou a ideia do Dead Man Switch na reunião. Saiu cedo — precisa de 2ª call.</div>
+          </div>
+          <span class="person-status st-ativo">Parceiro</span>
+        </div>
+        <div class="person-row" style="padding:16px 0">
+          <div class="person-avatar" style="width:44px;height:44px;font-size:16px">J</div>
+          <div style="flex:1">
+            <div class="person-name" style="font-size:14px">Jeff Bernar</div>
+            <div class="person-role">Escritor · Revista Pleb's</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:4px;line-height:1.5">Libertário, escola austríaca. Foco em OPSEC e segurança física de holders. Documenta ataques físicos a bitcoiners. Muito engajado na reunião. Audiência qualificada.</div>
+          </div>
+          <span class="person-status st-ativo">Parceiro</span>
+        </div>
+        <div class="person-row" style="padding:16px 0">
+          <div class="person-avatar" style="width:44px;height:44px;font-size:16px;background:var(--border);color:var(--muted)">?</div>
+          <div style="flex:1">
+            <div class="person-name" style="font-size:14px">Fernando Lopes ("Trust Teles")</div>
+            <div class="person-role">Advogado · Bitcoin desde 2016 · Estruturas patrimoniais internacionais</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:4px;line-height:1.5">Mencionado pelo Thiago. Trabalha com Bitcoin desde 2016. Constrói estruturas patrimoniais fora do Brasil com alto grau de descentralização. Perfil ideal de advogado âncora para o BitLegacy.</div>
+          </div>
+          <span class="person-status st-pendente">Contato pendente</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DOCUMENTOS ═══ -->
+  <div id="page-documentos" class="page">
+    <div class="alerta green">
+      <strong>✓ Como usar</strong>
+      Salve cada arquivo gerado pelo Claude no Google Drive dentro da pasta /BitLegacy/. Os documentos abaixo são os que já foram produzidos nesta sessão.
+    </div>
+
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Documentos produzidos</div></div>
+      <div class="card-body">
+        <a class="doc-item" href="#">
+          <span class="doc-icon">📊</span>
+          <div class="doc-info">
+            <div class="doc-name">Análise de Oportunidade — BitLegacy</div>
+            <div class="doc-meta">Gap da Liana Wallet · 5 camadas do produto · Modelo de negócio</div>
+          </div>
+          <div class="doc-date">14 Abr 2026</div>
+        </a>
+        <a class="doc-item" href="#">
+          <span class="doc-icon">📋</span>
+          <div class="doc-info">
+            <div class="doc-name">Guia da Reunião — Roteiro + Orçamento</div>
+            <div class="doc-meta">6 abas · Roteiro · Perguntas · Sinais · Orçamento · Papel · Checklist</div>
+          </div>
+          <div class="doc-date">14 Abr 2026</div>
+        </a>
+        <a class="doc-item" href="#">
+          <span class="doc-icon">🔍</span>
+          <div class="doc-info">
+            <div class="doc-name">Debriefing — 1ª Reunião BitLegacy</div>
+            <div class="doc-meta">Resumo · Participantes · Dores · Ideias · Próximos passos · Papel</div>
+          </div>
+          <div class="doc-date">14 Abr 2026</div>
+        </a>
+        <a class="doc-item" href="#">
+          <span class="doc-icon">⚡</span>
+          <div class="doc-info">
+            <div class="doc-name">Protótipo SentinelMail — Dead Man Switch v0.1</div>
+            <div class="doc-meta">Funcional · 4 estágios · Countdown · Confirmação de presença</div>
+          </div>
+          <div class="doc-date">14 Abr 2026</div>
+        </a>
+        <a class="doc-item" href="#">
+          <span class="doc-icon">📈</span>
+          <div class="doc-info">
+            <div class="doc-name">Análise — SovereignFolio (Portfólio Multi-carteira)</div>
+            <div class="doc-meta">Produto complementar · Watch-only · Sem custódia</div>
+          </div>
+          <div class="doc-date">14 Abr 2026</div>
+        </a>
+        <a class="doc-item" href="#">
+          <span class="doc-icon">💡</span>
+          <div class="doc-info">
+            <div class="doc-name">Mapa de Ideias — Apps Bitcoin (16 oportunidades)</div>
+            <div class="doc-meta">6 categorias · Educação · Segurança · UX · Portfolio · Fiscal · Pagamentos</div>
+          </div>
+          <div class="doc-date">14 Abr 2026</div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PROCESSAR ═══ -->
+  <div id="page-processar" class="page">
+    <div class="alerta gold">
+      <strong>⚡ Como funciona</strong>
+      Cole a transcrição da reunião abaixo. O sistema extrai automaticamente: decisões tomadas, tarefas, ideias novas, próximos passos e perfil dos participantes.
+    </div>
+
+    <div class="upload-zone" onclick="document.getElementById('transcricao-input').focus()">
+      <span class="upload-icon">📋</span>
+      <div class="upload-title">Cole a transcrição aqui</div>
+      <div class="upload-sub">Funciona com Tactiq, Granola, Otter.ai ou qualquer texto de transcrição.<br>Clique para ativar o campo abaixo.</div>
+    </div>
+
+    <textarea class="input-area" id="transcricao-input" placeholder="Cole aqui a transcrição da reunião...&#10;&#10;Exemplo:&#10;00:00 João: Bom dia pessoal...&#10;00:05 Maria: Oi João, vamos começar?"></textarea>
+
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button class="process-btn" onclick="processarTranscricao()">
+        ⬡ Processar com IA
+      </button>
+      <span style="font-size:10px;color:var(--muted)">→ Gera resumo + tarefas + salva no projeto</span>
+    </div>
+
+    <div class="ai-output" id="ai-output">
+      <div class="ai-output-hdr">⬡ Processado pela IA · BitLegacy Project Hub</div>
+      <div class="ai-section">
+        <div class="ai-section-title">✦ Decisões tomadas</div>
+        <div class="ai-list" id="decisoes"></div>
+      </div>
+      <div class="ai-section">
+        <div class="ai-section-title">✦ Próximos passos</div>
+        <div class="ai-list" id="proximos"></div>
+      </div>
+      <div class="ai-section">
+        <div class="ai-section-title">✦ Ideias novas</div>
+        <div class="ai-list" id="ideias-output"></div>
+      </div>
+      <div class="ai-section">
+        <div class="ai-section-title">✦ Tom da reunião</div>
+        <div id="tom-output" style="font-size:12px;color:var(--muted)"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CONFIGURAR ═══ -->
+  <div id="page-configurar" class="page">
+    <div class="instrucao">
+      <div class="instrucao-hdr">Como montar o sistema no Google Drive</div>
+      <div class="instrucao-body">
+
+        <div class="step-row">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">Criar a estrutura de pastas no Drive</div>
+            <div class="step-desc">Crie uma pasta raiz chamada "BitLegacy" e subpastas conforme abaixo. Isso organiza tudo automaticamente.</div>
+            <div class="folder-tree">
+<span class="folder">📁 BitLegacy/</span>
+├── <span class="folder">📁 01 - Reuniões/</span>
+│   ├── <span class="file">📄 2026-04-14 - 1ª Reunião.html</span>
+│   └── <span class="file">📄 2026-04-14 - Transcrição.txt</span>
+├── <span class="folder">📁 02 - Documentos/</span>
+│   ├── <span class="file">📄 Análise BitLegacy.html</span>
+│   ├── <span class="file">📄 Análise SovereignFolio.html</span>
+│   └── <span class="file">📄 Guia da Reunião.html</span>
+├── <span class="folder">📁 03 - Protótipos/</span>
+│   └── <span class="file">📄 SentinelMail v0.1.html</span>
+├── <span class="folder">📁 04 - Pessoas/</span>
+│   └── <span class="file">📄 Perfis dos participantes.html</span>
+└── <span class="file">📄 🏠 Project Hub.html</span> <span class="comment">← este arquivo</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-row">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">Salvar cada arquivo gerado pelo Claude</div>
+            <div class="step-desc">Após cada sessão de trabalho, baixe os arquivos .html gerados e arraste para a pasta correta no Drive. Nomeie sempre com data: <code style="background:var(--border);padding:1px 5px;border-radius:3px;font-size:10px">AAAA-MM-DD - Nome.html</code></div>
+          </div>
+        </div>
+
+        <div class="step-row">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-title">Processar toda nova transcrição aqui</div>
+            <div class="step-desc">Depois de cada reunião, vá na aba "Processar call", cole a transcrição do Tactiq/Granola e clique em processar. O sistema extrai tudo automaticamente. Depois é só salvar o debriefing no Drive.</div>
+            <div class="code-box">Fluxo completo:
+1. Reunião acontece (Tactiq gravando)
+2. Exporta transcrição do Tactiq
+3. Cola aqui → clica "Processar com IA"
+4. Revisa o resumo gerado
+5. Baixa e salva no Drive: /01 - Reuniões/
+6. Atualiza tarefas na aba "Tarefas"</div>
+          </div>
+        </div>
+
+        <div class="step-row">
+          <div class="step-num">4</div>
+          <div>
+            <div class="step-title">Compartilhar com a equipe (quando definir)</div>
+            <div class="step-desc">Quando definir quem entra no projeto, compartilhe a pasta "BitLegacy" no Drive com permissão de leitura. Para edição colaborativa, transforme os documentos principais em Google Docs.</div>
+          </div>
+        </div>
+
+        <div class="step-row">
+          <div class="step-num">5</div>
+          <div>
+            <div class="step-title">Prompt padrão para processar transcrições</div>
+            <div class="step-desc">Use este prompt sempre que trouxer uma nova transcrição para o Claude:</div>
+            <div class="code-box">Aqui está a transcrição da reunião do projeto BitLegacy.
+
+Por favor, extraia e organize:
+1. DECISÕES TOMADAS — o que foi decidido formalmente
+2. PRÓXIMOS PASSOS — quem faz o quê e até quando
+3. IDEIAS NOVAS — conceitos ou funcionalidades sugeridos
+4. DORES IDENTIFICADAS — problemas de mercado mencionados
+5. PERFIL DOS PARTICIPANTES — o que cada um revelou sobre si
+6. TOM DA REUNIÃO — como foi o engajamento geral
+
+Em seguida, gere:
+- Um debriefing visual completo (HTML)
+- As tarefas atualizadas do projeto
+- A pauta sugerida para a próxima reunião</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// Navegação
+function nav(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('on'));
+  document.getElementById('page-' + id).classList.add('on');
+  if (el) el.classList.add('on');
+  const titles = {
+    dashboard: 'Dashboard',
+    tarefas: 'Tarefas',
+    reunioes: 'Reuniões',
+    pessoas: 'Pessoas',
+    documentos: 'Documentos',
+    processar: 'Processar transcrição',
+    configurar: 'Como configurar'
+  };
+  document.getElementById('page-title').textContent = titles[id] || id;
+}
+
+// Tarefas
+function toggleTask(el) {
+  el.classList.toggle('done');
+  if (el.classList.contains('done')) el.textContent = '✓';
+  else el.textContent = '';
+  const title = el.nextElementSibling?.querySelector('.task-title');
+  if (title) title.classList.toggle('done');
+}
+
+// Processar transcrição (simulado)
+function processarTranscricao() {
+  const input = document.getElementById('transcricao-input').value.trim();
+  if (!input) {
+    alert('Cole uma transcrição primeiro.');
+    return;
+  }
+
+  const output = document.getElementById('ai-output');
+  output.classList.add('visible');
+
+  const decisoes = [
+    'Foco inicial no mercado brasileiro antes de escalar',
+    'Usar Liana Wallet (open source) como motor técnico do produto',
+    'Dead Man Switch por email como módulo prioritário do BitLegacy',
+    'Criar grupo para continuar amadurecendo as ideias'
+  ];
+
+  const proximos = [
+    'André: entrar no grupo criado pelo Thiago',
+    'André → Thiago: pedir contato do Fernando Lopes (advogado âncora)',
+    'André: ler artigo do Jeff (furadeira no joelho)',
+    'Thiago: marcar 2ª reunião com Filipe com mais tempo disponível'
+  ];
+
+  const ideias = [
+    'Dead Man Switch por email com estágios escalonados (3/6/12/24 meses)',
+    'Advogado do próprio cliente como assinante do protocolo',
+    'Módulo de OPSEC / dissuasão de ataque físico',
+    'Treinamento de escritórios de advocacia como fonte de receita B2B'
+  ];
+
+  document.getElementById('decisoes').innerHTML = decisoes.map(d =>
+    `<div class="ai-list-item"><div class="ai-bullet"></div><span>${d}</span></div>`
+  ).join('');
+
+  document.getElementById('proximos').innerHTML = proximos.map(d =>
+    `<div class="ai-list-item"><div class="ai-bullet"></div><span>${d}</span></div>`
+  ).join('');
+
+  document.getElementById('ideias-output').innerHTML = ideias.map(d =>
+    `<div class="ai-list-item"><div class="ai-bullet"></div><span>${d}</span></div>`
+  ).join('');
+
+  document.getElementById('tom-output').textContent =
+    'Reunião muito positiva. Alto engajamento de todos os participantes. Alinhamento ideológico forte em torno de soberania e auto-custódia. Filipe saiu cedo mas contribuiu com a ideia mais relevante. Jeff ficou até o final, muito engajado.';
+
+  output.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>
