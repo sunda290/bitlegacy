@@ -3,1034 +3,1449 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SentinelMail · Dead Man Switch</title>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;700;900&family=Lora:ital,wght@0,400;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<title>SentinelMail · Dead Man Switch · BitLegacy</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Cinzel:wght@400;600;700&family=VT323&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #080c10;
-  --s1: #0d1219;
-  --s2: #111820;
-  --border: #1a2230;
-  --border2: #243040;
-  --cyan: #00e5cc;
-  --cyan-dim: rgba(0,229,204,0.08);
-  --cyan-glow: rgba(0,229,204,0.15);
+  --bg: #03060a;
+  --bg2: #060c12;
+  --s1: #0a1018;
+  --s2: #0f1820;
+  --border: #1a2a1a;
+  --border2: #243824;
+  --btc: #f7931a;
+  --btc2: #ffb347;
+  --btc-dim: rgba(247,147,26,0.07);
+  --btc-glow: rgba(247,147,26,0.2);
+  --green: #00ff41;
+  --green-dim: rgba(0,255,65,0.06);
+  --red: #ff2020;
+  --red-dim: rgba(255,32,32,0.08);
   --amber: #ffaa00;
   --amber-dim: rgba(255,170,0,0.08);
-  --red: #ff3a3a;
-  --red-dim: rgba(255,58,58,0.08);
-  --green: #00e584;
-  --green-dim: rgba(0,229,132,0.08);
-  --text: #c8d8e8;
-  --muted: #4a6070;
-  --muted2: #2a3a48;
+  --text: #c8e0c8;
+  --muted: #3a5a3a;
+  --muted2: #1a2e1a;
+  --hash: #1e3a1e;
+}
+
+/* ── MATRIX RAIN CANVAS ── */
+#matrix-canvas {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  opacity: 0.07; z-index: 0;
+  pointer-events: none;
+}
+
+/* ── GRID OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(247,147,26,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(247,147,26,0.025) 1px, transparent 1px);
+  background-size: 32px 32px;
+  z-index: 0; pointer-events: none;
+}
+
+/* ── VIGNETTE ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(3,6,10,0.8) 100%);
+  z-index: 0; pointer-events: none;
 }
 
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Share Tech Mono', monospace;
   font-size: 12px;
   line-height: 1.6;
   min-height: 100vh;
   overflow-x: hidden;
-}
-
-/* Scanline effect */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0,0,0,0.03) 2px,
-    rgba(0,0,0,0.03) 4px
-  );
-  pointer-events: none;
-  z-index: 9998;
-}
-
-/* Glow bg */
-body::before {
-  content: '';
-  position: fixed;
-  top: -200px; left: 50%;
-  transform: translateX(-50%);
-  width: 600px; height: 400px;
-  background: radial-gradient(ellipse, rgba(0,229,204,0.04) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
+  cursor: crosshair;
 }
 
 * { position: relative; z-index: 1; }
 
-/* ── TOPO ── */
+/* ── SCANLINES ── */
+.scanlines {
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none; z-index: 9999;
+}
+
+/* ── TOPBAR ── */
 .topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 32px;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 32px;
   border-bottom: 1px solid var(--border);
-  background: rgba(8,12,16,0.95);
-  backdrop-filter: blur(10px);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  background: rgba(3,6,10,0.95);
+  backdrop-filter: blur(8px);
+  position: sticky; top: 0; z-index: 100;
 }
 
 .logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: flex; align-items: center; gap: 12px;
 }
 
-.logo-mark {
-  width: 28px; height: 28px;
-  border: 1.5px solid var(--cyan);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  color: var(--cyan);
-  animation: pulse-border 3s ease-in-out infinite;
+.logo-hex {
+  width: 32px; height: 32px;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
 }
 
-@keyframes pulse-border {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(0,229,204,0.3); }
-  50% { box-shadow: 0 0 0 6px rgba(0,229,204,0); }
+.logo-hex svg { width: 32px; height: 32px; }
+.hex-path {
+  fill: none; stroke: var(--btc); stroke-width: 1.5;
+  animation: hexRotate 8s linear infinite;
+  transform-origin: center;
+}
+@keyframes hexRotate { to { stroke-dashoffset: -100; } }
+
+.logo-btc {
+  position: absolute;
+  font-family: 'Cinzel', serif;
+  font-size: 14px; font-weight: 700;
+  color: var(--btc);
+}
+
+.logo-text {
+  display: flex; flex-direction: column;
 }
 
 .logo-name {
-  font-family: 'Unbounded', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text);
-  letter-spacing: 0.05em;
+  font-family: 'Cinzel', serif;
+  font-size: 15px; font-weight: 700;
+  color: #e8f0e8; letter-spacing: 0.1em;
 }
 
-.logo-name span { color: var(--cyan); }
-
-.status-indicator {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--green);
+.logo-sub {
+  font-size: 9px; color: var(--btc);
+  letter-spacing: 0.25em; text-transform: uppercase;
 }
 
-.status-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
+.topbar-right {
+  display: flex; align-items: center; gap: 20px;
+}
+
+.block-height {
+  font-size: 10px; color: var(--muted);
+  display: flex; align-items: center; gap: 6px;
+}
+
+.block-num {
+  font-family: 'VT323', monospace;
+  font-size: 16px; color: var(--btc);
+  animation: blockTick 3s steps(1) infinite;
+}
+
+@keyframes blockTick {
+  0%, 90% { opacity: 1; }
+  91%, 100% { opacity: 0.4; }
+}
+
+.status-pill {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em;
+  border: 1px solid var(--border2); padding: 4px 10px; border-radius: 2px;
+}
+
+.s-dot {
+  width: 5px; height: 5px; border-radius: 50%;
   background: var(--green);
-  animation: blink 2s ease-in-out infinite;
+  box-shadow: 0 0 6px var(--green);
+  animation: sdot 1.5s ease-in-out infinite;
+}
+@keyframes sdot { 0%,100%{opacity:1;box-shadow:0 0 6px var(--green)} 50%{opacity:0.3;box-shadow:none} }
+
+/* ── HASH TICKER ── */
+.hash-ticker {
+  background: var(--s1); border-bottom: 1px solid var(--border);
+  padding: 5px 32px;
+  display: flex; align-items: center; gap: 16px;
+  overflow: hidden;
+  font-size: 9px; color: var(--muted);
+  letter-spacing: 0.08em;
 }
 
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+.hash-label { color: var(--btc); flex-shrink: 0; }
+
+.hash-scroll {
+  white-space: nowrap;
+  animation: scroll 20s linear infinite;
+  color: var(--hash);
 }
+
+@keyframes scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
 /* ── HERO ── */
 .hero {
-  padding: 56px 32px 40px;
-  text-align: center;
+  padding: 44px 32px 36px;
   border-bottom: 1px solid var(--border);
-}
-
-.hero-kicker {
-  font-size: 9px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--cyan);
-  margin-bottom: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-
-.hero-kicker::before, .hero-kicker::after {
-  content: '';
-  width: 32px; height: 1px;
-  background: var(--cyan);
-  opacity: 0.4;
-}
-
-h1 {
-  font-family: 'Unbounded', sans-serif;
-  font-size: clamp(28px, 4.5vw, 52px);
-  font-weight: 900;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  margin-bottom: 16px;
-  color: #e8f4ff;
-}
-
-h1 .hl { color: var(--cyan); }
-
-.hero-sub {
-  font-family: 'Lora', serif;
-  font-style: italic;
-  font-size: 15px;
-  color: var(--muted);
-  max-width: 480px;
-  margin: 0 auto 32px;
-  line-height: 1.7;
-}
-
-/* Countdown ring */
-.countdown-ring {
-  width: 140px; height: 140px;
-  margin: 0 auto 32px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.ring-svg {
-  position: absolute;
-  inset: 0;
-  transform: rotate(-90deg);
-}
-
-.ring-bg { fill: none; stroke: var(--border2); stroke-width: 3; }
-.ring-fill {
-  fill: none;
-  stroke: var(--cyan);
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-dasharray: 408;
-  stroke-dashoffset: 0;
-  transition: stroke-dashoffset 0.5s ease, stroke 0.5s ease;
-  filter: drop-shadow(0 0 4px rgba(0,229,204,0.5));
-}
-
-.ring-center {
   text-align: center;
-  z-index: 2;
+  position: relative; overflow: hidden;
 }
 
-.ring-days {
-  font-family: 'Unbounded', sans-serif;
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--cyan);
-  display: block;
+/* Bitcoin symbol watermark */
+.hero-watermark {
+  position: absolute;
+  font-family: 'Cinzel', serif;
+  font-size: 280px; font-weight: 700;
+  color: rgba(247,147,26,0.025);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  pointer-events: none;
+  user-select: none;
   line-height: 1;
 }
 
+.hero-eyebrow {
+  font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--btc); margin-bottom: 18px;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+}
+
+.hero-eyebrow::before, .hero-eyebrow::after {
+  content: '';
+  width: 48px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--btc));
+}
+.hero-eyebrow::after { background: linear-gradient(90deg, var(--btc), transparent); }
+
+h1 {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 700; line-height: 1.1;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+  color: #f0ece0;
+  text-shadow: 0 0 40px rgba(247,147,26,0.15);
+}
+
+h1 .btc-gold { color: var(--btc); text-shadow: 0 0 20px rgba(247,147,26,0.4); }
+
+.hero-desc {
+  font-size: 11px; color: var(--muted);
+  max-width: 500px; margin: 0 auto 32px;
+  line-height: 1.8; letter-spacing: 0.04em;
+}
+
+/* ── TIMELOCK RING ── */
+.ring-wrap {
+  width: 180px; height: 180px;
+  margin: 0 auto 28px;
+  position: relative; display: flex; align-items: center; justify-content: center;
+}
+
+.ring-svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+
+.ring-track { fill: none; stroke: #0d1a0d; stroke-width: 3; }
+.ring-tick { fill: none; stroke: var(--border2); stroke-width: 1; stroke-dasharray: 2 14; }
+.ring-fill {
+  fill: none; stroke: var(--btc); stroke-width: 3; stroke-linecap: butt;
+  stroke-dasharray: 502; stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.25s ease, stroke 0.4s;
+  filter: drop-shadow(0 0 6px rgba(247,147,26,0.5));
+}
+
+.ring-inner {
+  position: absolute; inset: 14px;
+  border: 1px solid var(--border); border-radius: 50%;
+  background: radial-gradient(circle at center, #060c10 0%, #030609 100%);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.ring-center { text-align: center; }
+
+.ring-days {
+  font-family: 'VT323', monospace;
+  font-size: 52px; color: var(--btc);
+  display: block; line-height: 1;
+  text-shadow: 0 0 10px rgba(247,147,26,0.4);
+}
+
 .ring-label {
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: var(--muted);
-  margin-top: 4px;
-  display: block;
+  font-size: 8px; text-transform: uppercase; letter-spacing: 0.2em;
+  color: var(--muted); display: block; margin-top: 2px;
 }
 
-/* ALIVE button */
-.alive-btn {
+/* Orbit dots */
+.orbit {
+  position: absolute; inset: 0;
+  animation: orbitSpin 12s linear infinite;
+}
+@keyframes orbitSpin { to { transform: rotate(360deg); } }
+
+.orbit-dot {
+  position: absolute; top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--btc);
+  box-shadow: 0 0 8px var(--btc);
+}
+
+/* ── BOTÕES ── */
+.btn-zone {
+  display: flex; gap: 12px; justify-content: center;
+  flex-wrap: wrap; margin-bottom: 8px;
+}
+
+.btn-alive {
   background: none;
-  border: 1.5px solid var(--green);
+  border: 1px solid var(--green);
   color: var(--green);
-  font-family: 'Unbounded', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 14px 32px;
-  border-radius: 4px;
-  cursor: pointer;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 11px 28px; cursor: pointer;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
   transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0 auto;
+  box-shadow: inset 0 0 0 0 var(--green);
 }
-
-.alive-btn:hover {
+.btn-alive:hover {
   background: var(--green-dim);
-  box-shadow: 0 0 20px rgba(0,229,132,0.2);
+  box-shadow: 0 0 16px rgba(0,255,65,0.2);
+  color: #00ff41;
 }
+.btn-alive:disabled { opacity: 0.25; cursor: not-allowed; }
 
-.alive-btn:active { transform: scale(0.97); }
-
-/* ── MAIN LAYOUT ── */
-.main {
-  display: grid;
-  grid-template-columns: 1fr 300px;
-  min-height: 60vh;
+.btn-sim {
+  background: none;
+  border: 1px solid var(--btc);
+  color: var(--btc);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 11px 28px; cursor: pointer;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  transition: all 0.2s;
 }
+.btn-sim:hover { background: var(--btc-dim); box-shadow: 0 0 16px rgba(247,147,26,0.2); }
+.btn-sim:disabled { opacity: 0.25; cursor: not-allowed; }
 
-.left { border-right: 1px solid var(--border); padding: 32px; }
-.right { padding: 28px 24px; }
+.btn-reset {
+  background: none; border: none;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; color: var(--muted);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  cursor: pointer; padding: 6px 12px;
+  transition: color 0.2s;
+}
+.btn-reset:hover { color: var(--red); }
 
-/* Section headers */
+.sim-hint { font-size: 9px; color: var(--muted); margin-top: 6px; letter-spacing: 0.05em; }
+
+/* ── LAYOUT ── */
+.main { display: grid; grid-template-columns: 1fr 280px; }
+.left { border-right: 1px solid var(--border); padding: 28px 32px; }
+.right { padding: 24px 20px; }
+
 .sec-head {
-  font-size: 9px;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--cyan);
-  margin-bottom: 18px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--btc); margin-bottom: 18px;
+  display: flex; align-items: center; gap: 10px;
 }
-.sec-head::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.sec-head::before { content: '>_'; font-family: 'Share Tech Mono', monospace; color: var(--green); }
+.sec-head::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--border2), transparent); }
 
-/* Timeline de mensagens */
-.timeline { display: flex; flex-direction: column; gap: 10px; }
+/* ── PROTOCOL CARDS ── */
+.timeline { display: flex; flex-direction: column; gap: 8px; }
 
 .msg-card {
   background: var(--s1);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  overflow: hidden;
-  transition: border-color 0.2s;
-  animation: slideIn 0.3s ease both;
+  border-left: 3px solid var(--border2);
+  border-radius: 0;
+  overflow: hidden; transition: all 0.3s;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
 }
 
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(-8px); }
-  to { opacity: 1; transform: translateX(0); }
+.msg-card.active {
+  border-left-color: var(--btc);
+  background: linear-gradient(90deg, rgba(247,147,26,0.04) 0%, transparent 40%);
 }
 
-.msg-card:hover { border-color: var(--border2); }
-.msg-card.active { border-color: var(--cyan); }
-.msg-card.triggered { border-color: var(--amber); }
+.msg-card.triggered {
+  border-left-color: var(--red);
+  border-color: var(--red);
+  background: linear-gradient(90deg, rgba(255,32,32,0.06) 0%, transparent 40%);
+  animation: triggerFlash 0.4s ease;
+}
+
+.msg-card.done {
+  border-left-color: var(--green);
+  opacity: 0.65;
+}
+
+@keyframes triggerFlash {
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(3px)}
+  40%{transform:translateX(-3px)}
+  60%{transform:translateX(2px)}
+  80%{transform:translateX(-1px)}
+}
 
 .msg-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  cursor: pointer;
-  gap: 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; cursor: pointer; gap: 12px;
 }
 
 .msg-left { display: flex; align-items: center; gap: 12px; }
 
 .msg-step {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  border: 1.5px solid var(--border2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Unbounded', sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--muted);
-  flex-shrink: 0;
-  transition: all 0.2s;
+  font-family: 'VT323', monospace;
+  font-size: 24px; color: var(--muted);
+  width: 28px; text-align: center; flex-shrink: 0;
+  transition: all 0.3s;
 }
-
-.msg-card.active .msg-step {
-  border-color: var(--cyan);
-  color: var(--cyan);
-  box-shadow: 0 0 8px rgba(0,229,204,0.2);
-}
-
-.msg-card.triggered .msg-step {
-  border-color: var(--amber);
-  color: var(--amber);
-  background: var(--amber-dim);
-}
+.msg-card.active .msg-step { color: var(--btc); text-shadow: 0 0 8px rgba(247,147,26,0.4); }
+.msg-card.triggered .msg-step { color: var(--red); text-shadow: 0 0 8px rgba(255,32,32,0.4); }
+.msg-card.done .msg-step { color: var(--green); }
 
 .msg-info {}
 .msg-delay {
-  font-family: 'Unbounded', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 2px;
+  font-family: 'Cinzel', serif;
+  font-size: 12px; font-weight: 600; color: #d0e0d0; margin-bottom: 1px;
 }
 .msg-recipient { font-size: 10px; color: var(--muted); }
 
 .msg-badge {
-  font-size: 9px;
-  padding: 3px 10px;
-  border-radius: 100px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  font-weight: 600;
+  font-size: 9px; padding: 2px 10px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  font-family: 'Share Tech Mono', monospace;
+  clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
   white-space: nowrap;
 }
+.b-wait { background: var(--muted2); color: var(--muted); }
+.b-next { background: rgba(247,147,26,0.15); color: var(--btc); border: 1px solid rgba(247,147,26,0.3); }
+.b-fire { background: rgba(255,32,32,0.15); color: var(--red); border: 1px solid rgba(255,32,32,0.3); animation: bfire 0.8s ease infinite; }
+.b-done { background: rgba(0,255,65,0.1); color: var(--green); }
+@keyframes bfire { 0%,100%{opacity:1}50%{opacity:0.5} }
 
-.badge-wait { background: var(--muted2); color: var(--muted); }
-.badge-next { background: var(--cyan-dim); color: var(--cyan); border: 1px solid rgba(0,229,204,0.2); }
-.badge-sent { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(255,170,0,0.2); }
-
-.msg-body {
-  display: none;
-  padding: 0 16px 14px 56px;
-}
-
-.msg-body.open { display: block; }
+.msg-body { display: none; padding: 0 16px 14px 56px; }
+.msg-body.open { display: block; animation: bodySlide 0.2s ease; }
+@keyframes bodySlide { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
 
 .msg-subject {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 8px;
-  padding-top: 4px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; color: var(--btc); margin-bottom: 8px;
+  letter-spacing: 0.05em;
 }
 
 .msg-preview {
-  font-family: 'Lora', serif;
-  font-size: 12px;
-  font-style: italic;
-  color: var(--muted);
-  line-height: 1.7;
-  border-left: 2px solid var(--border2);
-  padding-left: 12px;
-  margin-bottom: 10px;
+  font-size: 11px; color: var(--muted); line-height: 1.7;
+  border-left: 2px solid var(--border2); padding-left: 10px; margin-bottom: 8px;
 }
 
-.msg-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-
-.mini-btn {
-  background: none;
-  border: 1px solid var(--border2);
-  color: var(--muted);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  padding: 5px 12px;
-  border-radius: 3px;
-  cursor: pointer;
-  transition: all 0.15s;
+.card-countdown {
+  display: none; font-family: 'VT323', monospace;
+  font-size: 18px; color: var(--red); margin-top: 6px;
+  letter-spacing: 0.1em;
 }
+.card-countdown.show { display: block; }
 
-.mini-btn:hover { border-color: var(--cyan); color: var(--cyan); }
-.mini-btn.primary { border-color: var(--cyan); color: var(--cyan); }
-
-/* Add message */
-.add-msg {
-  background: none;
-  border: 1px dashed var(--border2);
-  color: var(--muted);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  padding: 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.2s;
-  margin-top: 10px;
+/* Email simulado — terminal style */
+.email-sim {
+  display: none;
+  background: #020806;
+  border: 1px solid var(--green);
+  padding: 12px 14px; margin-top: 10px;
+  font-family: 'Share Tech Mono', monospace;
+  animation: emailIn 0.3s ease;
+  position: relative;
 }
-.add-msg:hover { border-color: var(--cyan); color: var(--cyan); }
+.email-sim::before {
+  content: '> PACKET TRANSMITTED';
+  position: absolute; top: -9px; left: 10px;
+  background: #020806; padding: 0 6px;
+  font-size: 9px; color: var(--green); letter-spacing: 0.15em;
+}
+.email-sim.show { display: block; }
+@keyframes emailIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+
+.em-row { font-size: 10px; margin-bottom: 4px; }
+.em-key { color: var(--green); }
+.em-val { color: #8ab88a; }
+.em-divider { border: none; border-top: 1px solid #0d1a0d; margin: 8px 0; }
+.em-body { font-size: 11px; color: #6a9a6a; line-height: 1.6; }
+.em-cursor { display: inline-block; background: var(--green); width: 7px; height: 11px; animation: cursor 1s steps(2) infinite; vertical-align: middle; margin-left: 3px; }
+@keyframes cursor { 0%,100%{opacity:1}50%{opacity:0} }
 
 /* ── SIDEBAR ── */
-.sb-block { margin-bottom: 26px; }
+.sb-block { margin-bottom: 22px; }
 
 .sb-title {
-  font-size: 9px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 12px;
-  padding-bottom: 8px;
+  font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--btc); margin-bottom: 10px; padding-bottom: 6px;
   border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 6px;
+}
+.sb-title::before { content: '#'; color: var(--green); }
+
+/* Blockchain visual */
+.chain-wrap { display: flex; flex-direction: column; gap: 0; }
+
+.block-item {
+  background: var(--s1); border: 1px solid var(--border);
+  padding: 8px 10px; font-size: 10px;
+  transition: all 0.3s; position: relative;
 }
 
-/* Ping log */
-.ping-log { display: flex; flex-direction: column; gap: 6px; }
+.block-item::after {
+  content: '|';
+  position: absolute; bottom: -8px; left: 50%;
+  transform: translateX(-50%);
+  color: var(--border2); font-size: 10px; z-index: 2;
+}
+.block-item:last-child::after { display: none; }
 
-.ping-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 7px 10px;
-  background: var(--s1);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  font-size: 10px;
+.block-item.b-active { border-color: var(--btc); background: var(--btc-dim); }
+.block-item.b-triggered { border-color: var(--red); background: var(--red-dim); }
+.block-item.b-done { border-color: var(--green); background: var(--green-dim); opacity: 0.7; }
+
+.bi-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.bi-n { font-family: 'VT323', monospace; font-size: 16px; color: var(--muted); }
+.block-item.b-active .bi-n { color: var(--btc); }
+.block-item.b-triggered .bi-n { color: var(--red); }
+.block-item.b-done .bi-n { color: var(--green); }
+
+.bi-status { font-size: 8px; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; }
+
+.bi-hash {
+  font-size: 8px; color: var(--muted2); letter-spacing: 0.05em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-.ping-date { color: var(--muted); font-family: 'JetBrains Mono', monospace; }
-.ping-status { color: var(--green); font-weight: 500; }
-.ping-status.miss { color: var(--red); }
+.bi-desc { font-size: 9px; color: var(--muted); margin-top: 2px; }
 
-/* Config items */
-.cfg-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 9px 0;
-  border-bottom: 1px solid rgba(26,34,48,0.8);
-  font-size: 11px;
+/* Log terminal */
+.log-wrap {
+  background: #020806; border: 1px solid var(--border);
+  padding: 10px; max-height: 160px; overflow-y: auto;
+  font-family: 'Share Tech Mono', monospace;
 }
-.cfg-item:last-child { border-bottom: none; }
-.cfg-key { color: var(--muted); }
-.cfg-val { color: var(--text); font-weight: 500; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
-.cfg-val.cyan { color: var(--cyan); }
-.cfg-val.green { color: var(--green); }
-.cfg-val.amber { color: var(--amber); }
 
-/* Toggle */
-.toggle-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 9px 0;
-  border-bottom: 1px solid rgba(26,34,48,0.8);
+.log-item {
+  font-size: 10px; margin-bottom: 4px; display: flex; gap: 6px;
+  animation: logIn 0.2s ease;
 }
-.toggle-row:last-child { border-bottom: none; }
-.toggle-label { font-size: 11px; color: var(--muted); }
+@keyframes logIn { from{opacity:0;transform:translateX(6px)} to{opacity:1;transform:translateX(0)} }
+.log-ts { color: var(--muted); flex-shrink: 0; }
+.log-msg { }
+.log-ok { color: var(--green); }
+.log-warn { color: var(--amber); }
+.log-err { color: var(--red); }
+.log-info { color: var(--btc); }
 
-.toggle {
-  width: 32px; height: 18px;
-  background: var(--border2);
-  border-radius: 9px;
-  cursor: pointer;
-  position: relative;
-  transition: background 0.2s;
-  flex-shrink: 0;
-}
-.toggle.on { background: var(--cyan); }
-.toggle::after {
-  content: '';
-  position: absolute;
-  width: 12px; height: 12px;
-  background: #fff;
-  border-radius: 50%;
-  top: 3px; left: 3px;
-  transition: transform 0.2s;
-}
-.toggle.on::after { transform: translateX(14px); }
+/* Cfg */
+.cfg-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(26,42,26,0.8); font-size: 10px; }
+.cfg-row:last-child { border-bottom: none; }
+.cfg-k { color: var(--muted); }
+.cfg-v { font-family: 'VT323', monospace; font-size: 14px; }
+.cv-btc { color: var(--btc); }
+.cv-green { color: var(--green); }
+.cv-red { color: var(--red); }
+.cv-amber { color: var(--amber); }
 
-/* Alert box */
-.alert-dms {
-  background: var(--amber-dim);
-  border: 1px solid rgba(255,170,0,0.2);
-  border-radius: 5px;
-  padding: 12px 14px;
-  font-size: 11px;
-  line-height: 1.65;
-  color: var(--text);
-}
-.alert-dms strong { color: var(--amber); display: block; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 4px; }
-
-/* Modal overlay */
+/* ── MODAL ── */
 .overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(8,12,16,0.9);
-  backdrop-filter: blur(4px);
-  z-index: 200;
-  display: none;
-  align-items: center;
-  justify-content: center;
+  position: fixed; inset: 0;
+  background: rgba(3,6,10,0.92);
+  backdrop-filter: blur(6px);
+  z-index: 200; display: none; align-items: center; justify-content: center;
 }
 .overlay.open { display: flex; }
 
 .modal {
-  background: var(--s1);
-  border: 1px solid var(--border2);
-  border-radius: 8px;
-  padding: 32px;
-  width: 90%;
-  max-width: 460px;
-  animation: modalIn 0.2s ease;
+  background: var(--s1); border: 1px solid var(--green);
+  padding: 32px; width: 90%; max-width: 420px;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+  animation: mIn 0.2s ease;
+  position: relative;
 }
-
-@keyframes modalIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+.modal::before {
+  content: 'IDENTITY VERIFICATION';
+  position: absolute; top: -9px; left: 20px;
+  background: var(--s1); padding: 0 8px;
+  font-size: 9px; color: var(--green); letter-spacing: 0.2em;
 }
-
-.modal-title {
-  font-family: 'Unbounded', sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--green);
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.modal-sub {
-  font-size: 12px;
-  color: var(--muted);
-  margin-bottom: 24px;
-  line-height: 1.7;
-}
+@keyframes mIn { from{opacity:0;transform:scale(0.96)} to{opacity:1;transform:scale(1)} }
 
 .modal-timer {
-  font-family: 'Unbounded', sans-serif;
-  font-size: 40px;
-  font-weight: 900;
-  color: var(--green);
-  text-align: center;
-  margin-bottom: 8px;
-  display: block;
+  font-family: 'VT323', monospace;
+  font-size: 72px; color: var(--green);
+  text-align: center; display: block;
+  text-shadow: 0 0 20px rgba(0,255,65,0.4);
+  margin: 8px 0 4px;
 }
 
-.modal-timer-label {
-  font-size: 10px;
-  text-align: center;
-  color: var(--muted);
-  display: block;
-  margin-bottom: 24px;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
+.modal-label {
+  font-size: 9px; text-align: center; color: var(--muted);
+  display: block; margin-bottom: 24px; letter-spacing: 0.2em;
 }
 
-.modal-btn {
-  width: 100%;
-  background: var(--green);
-  color: var(--bg);
-  border: none;
-  font-family: 'Unbounded', sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  padding: 14px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: 10px;
+.modal-desc {
+  font-size: 10px; color: var(--muted); line-height: 1.7; margin-bottom: 20px; letter-spacing: 0.03em;
 }
-.modal-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+.modal-confirm {
+  width: 100%; background: none; border: 1px solid var(--green); color: var(--green);
+  font-family: 'Share Tech Mono', monospace; font-size: 12px; letter-spacing: 0.15em;
+  padding: 13px; cursor: pointer; text-transform: uppercase;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  transition: all 0.2s; margin-bottom: 10px;
+}
+.modal-confirm:hover { background: var(--green-dim); box-shadow: 0 0 20px rgba(0,255,65,0.2); }
+.modal-confirm:disabled { opacity: 0.25; cursor: not-allowed; }
 
 .modal-cancel {
-  width: 100%;
-  background: none;
-  border: 1px solid var(--border2);
-  color: var(--muted);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  padding: 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
+  width: 100%; background: none; border: 1px solid var(--border2); color: var(--muted);
+  font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 0.1em;
+  padding: 9px; cursor: pointer; text-transform: uppercase; transition: all 0.2s;
 }
 .modal-cancel:hover { border-color: var(--red); color: var(--red); }
 
-/* Toast */
+/* ── TOAST ── */
 .toast {
-  position: fixed;
-  bottom: 32px;
-  left: 50%;
-  transform: translateX(-50%) translateY(80px);
-  background: var(--green);
-  color: var(--bg);
-  font-family: 'Unbounded', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 12px 24px;
-  border-radius: 4px;
-  z-index: 300;
-  transition: transform 0.3s ease;
-  letter-spacing: 0.05em;
+  position: fixed; bottom: 28px; left: 50%;
+  transform: translateX(-50%) translateY(70px);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 10px 24px;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  z-index: 300; transition: transform 0.3s ease;
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
+.t-green { background: rgba(0,255,65,0.15); border: 1px solid var(--green); color: var(--green); }
+.t-amber { background: rgba(255,170,0,0.15); border: 1px solid var(--amber); color: var(--amber); }
+.t-red { background: rgba(255,32,32,0.15); border: 1px solid var(--red); color: var(--red); }
 
-/* Footer */
 footer {
-  padding: 16px 32px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  font-size: 9px;
-  color: var(--muted);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  flex-wrap: wrap;
-  gap: 8px;
+  padding: 14px 32px; border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between;
+  font-size: 9px; color: var(--muted); letter-spacing: 0.1em; flex-wrap: wrap; gap: 6px;
 }
+.footer-hash { color: var(--border2); font-size: 9px; }
 
-@media(max-width: 720px) {
+@media(max-width:720px){
   .main { grid-template-columns: 1fr; }
   .right { border-top: 1px solid var(--border); }
-  .topbar, .hero, .left, .right, footer { padding-left: 20px; padding-right: 20px; }
+  .topbar,.hero,.left,.right,footer { padding-left: 18px; padding-right: 18px; }
+  .hash-ticker { display: none; }
 }
 </style>
 </head>
 <body>
 
+<div class="scanlines"></div>
+<canvas id="matrix-canvas"></canvas>
+
 <!-- TOPBAR -->
 <div class="topbar">
   <div class="logo">
-    <div class="logo-mark">◉</div>
-    <div class="logo-name">Sentinel<span>Mail</span></div>
+    <div class="logo-hex">
+      <svg viewBox="0 0 32 32">
+        <polygon class="hex-path" points="16,2 28,9 28,23 16,30 4,23 4,9"
+          stroke-dasharray="78" stroke-dashoffset="0"/>
+      </svg>
+      <span class="logo-btc">₿</span>
+    </div>
+    <div class="logo-text">
+      <div class="logo-name">SentinelMail</div>
+      <div class="logo-sub">Dead Man Switch · BitLegacy Protocol</div>
+    </div>
   </div>
-  <div style="display:flex; align-items:center; gap:16px">
-    <div class="status-indicator">
-      <div class="status-dot"></div>
-      Sistema ativo
+  <div class="topbar-right">
+    <div class="block-height">
+      BLOCK <span class="block-num" id="block-num">896,241</span>
     </div>
-    <div style="font-size:10px; color:var(--muted); border:1px solid var(--border); padding:4px 12px; border-radius:3px; cursor:pointer" onclick="openModal()">
-      ◎ Confirmar presença
+    <div class="status-pill" id="status-pill">
+      <div class="s-dot" id="s-dot"></div>
+      <span id="s-text">TITULAR VIVO</span>
     </div>
+  </div>
+</div>
+
+<!-- HASH TICKER -->
+<div class="hash-ticker">
+  <span class="hash-label">TIMELOCK:</span>
+  <div class="hash-scroll" id="hash-scroll">
+    000000000000000000029e45a5af7b47ba15cf54f63e1d3ba98e7aa3a37c623 &nbsp;&nbsp; 00000000000000000001a3c4b2fe5e7e9ad1f6d3b1a2e8c9d4f7b6a3e1c5d2f &nbsp;&nbsp; 0000000000000000000312a7c5e9b4d2f6a8e1c3d7b9f2a4c6e8b1d3f5a7c9e &nbsp;&nbsp; 000000000000000000029e45a5af7b47ba15cf54f63e1d3ba98e7aa3a37c623 &nbsp;&nbsp; 00000000000000000001a3c4b2fe5e7e9ad1f6d3b1a2e8c9d4f7b6a3e1c5d2f &nbsp;&nbsp;
   </div>
 </div>
 
 <!-- HERO -->
 <div class="hero">
-  <div class="hero-kicker">Dead Man Switch · Protocolo de Herança Bitcoin</div>
-  <h1>Se você parar de<br>responder — <span class="hl">eles recebem.</span></h1>
-  <p class="hero-sub">Configure mensagens escalonadas para seus herdeiros. O sistema dispara automaticamente se você não confirmar que está vivo.</p>
+  <div class="hero-watermark">₿</div>
 
-  <div class="countdown-ring">
-    <svg class="ring-svg" viewBox="0 0 140 140">
-      <circle class="ring-bg" cx="70" cy="70" r="65"/>
-      <circle class="ring-fill" id="ring-fill" cx="70" cy="70" r="65"/>
+  <div class="hero-eyebrow">OP_CHECKLOCKTIMEVERIFY · BIP-65 · SENTINELMAIL</div>
+
+  <h1>DEAD MAN<br><span class="btc-gold">SWITCH</span></h1>
+
+  <p class="hero-desc">
+    SE VOCÊ PARAR DE ASSINAR — O PROTOCOLO EXECUTA.<br>
+    TIMELOCK ON-CHAIN. SEM CUSTÓDIA. SEM TERCEIROS.
+  </p>
+
+  <!-- RING -->
+  <div class="ring-wrap">
+    <svg class="ring-svg" viewBox="0 0 180 180">
+      <circle class="ring-track" cx="90" cy="90" r="80"/>
+      <circle class="ring-tick" cx="90" cy="90" r="80" stroke-dasharray="2 14.57"/>
+      <circle class="ring-fill" id="ring-fill" cx="90" cy="90" r="80"/>
     </svg>
-    <div class="ring-center">
-      <span class="ring-days" id="ring-days">87</span>
-      <span class="ring-label">dias restantes</span>
+    <div class="orbit">
+      <div class="orbit-dot"></div>
+    </div>
+    <div class="ring-inner">
+      <div class="ring-center">
+        <span class="ring-days" id="ring-days">90</span>
+        <span class="ring-label" id="ring-label">DIAS ATÉ GATILHO</span>
+      </div>
     </div>
   </div>
 
-  <button class="alive-btn" onclick="openModal()">
-    ✓ &nbsp;Confirmar que estou vivo
-  </button>
+  <div class="btn-zone">
+    <button class="btn-alive" id="btn-alive" onclick="openModal()">
+      [✓] CONFIRMAR PRESENÇA
+    </button>
+    <button class="btn-sim" id="btn-sim" onclick="iniciarSimulacao()">
+      [⚡] SIMULAR PROTOCOLO
+    </button>
+  </div>
+  <button class="btn-reset" onclick="resetarTudo()">[↺] REINICIAR DEMO</button>
+  <p class="sim-hint" id="sim-hint">» SIMULE O PROTOCOLO COMPLETO AO VIVO — CLIQUE EM [⚡] SIMULAR</p>
 </div>
 
 <!-- MAIN -->
 <div class="main">
-
-  <!-- LEFT: Timeline -->
   <div class="left">
-    <div class="sec-head">Protocolo de mensagens</div>
-
+    <div class="sec-head">PROTOCOLO DE MENSAGENS</div>
     <div class="timeline" id="timeline">
 
-      <!-- Msg 1 -->
+      <!-- ESTÁGIO 1 -->
       <div class="msg-card active" id="card-1">
         <div class="msg-header" onclick="toggleCard(1)">
           <div class="msg-left">
             <div class="msg-step">1</div>
             <div class="msg-info">
-              <div class="msg-delay">3 meses sem resposta</div>
-              <div class="msg-recipient">→ Amigos de confiança (3 pessoas)</div>
+              <div class="msg-delay">90 dias sem resposta</div>
+              <div class="msg-recipient">→ Amigos de confiança · 3 destinatários</div>
             </div>
           </div>
-          <span class="msg-badge badge-next">Próximo</span>
+          <span class="msg-badge b-next" id="badge-1">PRÓXIMO</span>
         </div>
         <div class="msg-body open" id="body-1">
-          <div class="msg-subject">Assunto: Alguém viu o [Nome]?</div>
-          <div class="msg-preview">
-            "Este email foi enviado automaticamente porque não obtive confirmação de presença nos últimos 90 dias. Por favor, verifiquem se estou bem. Não é urgência de Bitcoin ainda — é um pedido de investigação. Se confirmarem que estou bem, ignorem. Se não conseguirem me localizar em 7 dias, abram o envelope lacrado que deixei com vocês."
-          </div>
-          <div class="msg-actions">
-            <button class="mini-btn primary">✎ Editar mensagem</button>
-            <button class="mini-btn" onclick="addRecipient(1)">+ Destinatário</button>
-            <button class="mini-btn">⏱ Alterar prazo</button>
+          <div class="msg-subject">» SUBJECT: Alguém viu o André? [AUTO-TRIGGER-01]</div>
+          <div class="msg-preview">"Este email foi disparado automaticamente. André não confirmou presença nos últimos 90 dias. Verifiquem se está bem. Não abram nenhum envelope ainda — apenas localizem."</div>
+          <div class="card-countdown" id="countdown-1"></div>
+          <div class="email-sim" id="email-1">
+            <div class="em-row"><span class="em-key">FROM:</span> <span class="em-val">sentinel@bitlegacy.protocol</span></div>
+            <div class="em-row"><span class="em-key">TO:</span> <span class="em-val">lucas@, pedro@, marina@ [3 nodes]</span></div>
+            <div class="em-row"><span class="em-key">BLOCK:</span> <span class="em-val" id="em-block-1">—</span></div>
+            <div class="em-row"><span class="em-key">TIMELOCK:</span> <span class="em-val">EXPIRED · 90D</span></div>
+            <hr class="em-divider">
+            <div class="em-body">"Este email foi disparado automaticamente pelo protocolo SentinelMail. André não confirmou sua presença nos últimos 90 dias. Por favor, verifiquem se está bem. Estágio 1 de 4 ativado."<span class="em-cursor"></span></div>
           </div>
         </div>
       </div>
 
-      <!-- Msg 2 -->
+      <!-- ESTÁGIO 2 -->
       <div class="msg-card" id="card-2">
         <div class="msg-header" onclick="toggleCard(2)">
           <div class="msg-left">
             <div class="msg-step">2</div>
             <div class="msg-info">
-              <div class="msg-delay">6 meses sem resposta</div>
-              <div class="msg-recipient">→ Cônjuge / Parceiro(a)</div>
+              <div class="msg-delay">180 dias sem resposta</div>
+              <div class="msg-recipient">→ Cônjuge · Andreza</div>
             </div>
           </div>
-          <span class="msg-badge badge-wait">Aguardando</span>
+          <span class="msg-badge b-wait" id="badge-2">AGUARDANDO</span>
         </div>
         <div class="msg-body" id="body-2">
-          <div class="msg-subject">Assunto: Instruções — Parte 1 das chaves</div>
-          <div class="msg-preview">
-            "Se você está lendo isso, significa que não estou mais aqui ou estou impossibilitado. No cofre da sala há um envelope vermelho com a primeira parte das instruções. Não abra antes de ler este email completo. As chaves estão divididas em dois locais..."
-          </div>
-          <div class="msg-actions">
-            <button class="mini-btn primary">✎ Editar mensagem</button>
-            <button class="mini-btn">+ Destinatário</button>
-            <button class="mini-btn">⏱ Alterar prazo</button>
+          <div class="msg-subject">» SUBJECT: Instruções Parte 1 — Chaves [AUTO-TRIGGER-02]</div>
+          <div class="msg-preview">"Se você está lendo isso, algo aconteceu. No cofre da sala há um envelope vermelho com a Parte 1. Não abra antes de ler este email completo. As chaves estão divididas..."</div>
+          <div class="card-countdown" id="countdown-2"></div>
+          <div class="email-sim" id="email-2">
+            <div class="em-row"><span class="em-key">FROM:</span> <span class="em-val">sentinel@bitlegacy.protocol</span></div>
+            <div class="em-row"><span class="em-key">TO:</span> <span class="em-val">andreza@ [ENCRYPTED]</span></div>
+            <div class="em-row"><span class="em-key">BLOCK:</span> <span class="em-val" id="em-block-2">—</span></div>
+            <div class="em-row"><span class="em-key">TIMELOCK:</span> <span class="em-val">EXPIRED · 180D</span></div>
+            <hr class="em-divider">
+            <div class="em-body">"Se você está lendo isso, significa que não estou mais aqui. No cofre: envelope vermelho, Parte 1 das instruções. Não abra antes de ler tudo. As chaves estão em dois locais diferentes."<span class="em-cursor"></span></div>
           </div>
         </div>
       </div>
 
-      <!-- Msg 3 -->
+      <!-- ESTÁGIO 3 -->
       <div class="msg-card" id="card-3">
         <div class="msg-header" onclick="toggleCard(3)">
           <div class="msg-left">
             <div class="msg-step">3</div>
             <div class="msg-info">
-              <div class="msg-delay">12 meses sem resposta</div>
-              <div class="msg-recipient">→ Cônjuge + Advogado</div>
+              <div class="msg-delay">365 dias sem resposta</div>
+              <div class="msg-recipient">→ Cônjuge + Advogado · Fernando Lopes</div>
             </div>
           </div>
-          <span class="msg-badge badge-wait">Aguardando</span>
+          <span class="msg-badge b-wait" id="badge-3">AGUARDANDO</span>
         </div>
         <div class="msg-body" id="body-3">
-          <div class="msg-subject">Assunto: Protocolo completo de herança Bitcoin</div>
-          <div class="msg-preview">
-            "Este é o protocolo completo. A Liana Wallet está configurada com timelock de 12 meses. O advogado Dr. [Nome] tem a segunda assinatura necessária. Para acessar os fundos, siga os passos na ordem: 1. Contate o advogado. 2. Abra o envelope no banco. 3. Conecte o hardware wallet ao computador..."
-          </div>
-          <div class="msg-actions">
-            <button class="mini-btn primary">✎ Editar mensagem</button>
-            <button class="mini-btn">+ Destinatário</button>
-            <button class="mini-btn">⏱ Alterar prazo</button>
+          <div class="msg-subject">» SUBJECT: Protocolo Completo Bitcoin [AUTO-TRIGGER-03]</div>
+          <div class="msg-preview">"Protocolo completo liberado. Liana Wallet com timelock de 365 dias ativo. Dr. Fernando Lopes possui a segunda assinatura multisig. Siga os passos na ordem exata..."</div>
+          <div class="card-countdown" id="countdown-3"></div>
+          <div class="email-sim" id="email-3">
+            <div class="em-row"><span class="em-key">FROM:</span> <span class="em-val">sentinel@bitlegacy.protocol</span></div>
+            <div class="em-row"><span class="em-key">TO:</span> <span class="em-val">andreza@, fernando@trustteles.adv.br [2-OF-2 MULTISIG]</span></div>
+            <div class="em-row"><span class="em-key">BLOCK:</span> <span class="em-val" id="em-block-3">—</span></div>
+            <div class="em-row"><span class="em-key">TIMELOCK:</span> <span class="em-val">EXPIRED · 365D · LIANA ACTIVE</span></div>
+            <hr class="em-divider">
+            <div class="em-body">"Protocolo completo. Liana Wallet: timelock 365D expirado. Dr. Fernando Lopes: segunda assinatura multisig. Passos: 1. Contatar advogado. 2. Envelope no banco. 3. Hardware wallet."<span class="em-cursor"></span></div>
           </div>
         </div>
       </div>
 
-      <!-- Msg 4 -->
+      <!-- ESTÁGIO 4 -->
       <div class="msg-card" id="card-4">
         <div class="msg-header" onclick="toggleCard(4)">
           <div class="msg-left">
             <div class="msg-step">4</div>
             <div class="msg-info">
-              <div class="msg-delay">24 meses sem resposta</div>
-              <div class="msg-recipient">→ Filhos / Herdeiros secundários</div>
+              <div class="msg-delay">730 dias sem resposta</div>
+              <div class="msg-recipient">→ Filhos · Herdeiros secundários</div>
             </div>
           </div>
-          <span class="msg-badge badge-wait">Aguardando</span>
+          <span class="msg-badge b-wait" id="badge-4">AGUARDANDO</span>
         </div>
         <div class="msg-body" id="body-4">
-          <div class="msg-subject">Assunto: Para meus filhos — o que deixei para vocês</div>
-          <div class="msg-preview">
-            "Se este email chegou até vocês, já se passaram 2 anos. Espero que tenham seguido o protocolo anterior. Este email contém as instruções finais e o histórico completo de onde estão os ativos restantes. Bitcoin é soberania. Guardem isso..."
-          </div>
-          <div class="msg-actions">
-            <button class="mini-btn primary">✎ Editar mensagem</button>
-            <button class="mini-btn">+ Destinatário</button>
-            <button class="mini-btn">⏱ Alterar prazo</button>
+          <div class="msg-subject">» SUBJECT: Para meus filhos — Legado Bitcoin [AUTO-TRIGGER-04]</div>
+          <div class="msg-preview">"Se este email chegou até vocês, já se passaram 730 dias. Bitcoin é soberania. Não é só dinheiro — é o que você tem quando o sistema falha. Guardem e preservem..."</div>
+          <div class="card-countdown" id="countdown-4"></div>
+          <div class="email-sim" id="email-4">
+            <div class="em-row"><span class="em-key">FROM:</span> <span class="em-val">sentinel@bitlegacy.protocol</span></div>
+            <div class="em-row"><span class="em-key">TO:</span> <span class="em-val">herdeiros@ [FINAL STAGE]</span></div>
+            <div class="em-row"><span class="em-key">BLOCK:</span> <span class="em-val" id="em-block-4">—</span></div>
+            <div class="em-row"><span class="em-key">TIMELOCK:</span> <span class="em-val">EXPIRED · 730D · PROTOCOL COMPLETE</span></div>
+            <hr class="em-divider">
+            <div class="em-body">"Para meus filhos. 730 dias se passaram. Bitcoin é soberania individual. Not your keys, not your coins. Sigam as instruções finais em anexo. Este é o meu legado."<span class="em-cursor"></span></div>
           </div>
         </div>
       </div>
 
     </div>
-
-    <button class="add-msg" onclick="addStage()">
-      + Adicionar estágio
-    </button>
   </div>
 
-  <!-- RIGHT: Sidebar -->
+  <!-- SIDEBAR -->
   <div class="right">
 
     <div class="sb-block">
-      <div class="sb-title">Histórico de confirmações</div>
-      <div class="ping-log">
-        <div class="ping-item">
-          <span class="ping-date">14 Abr 2026</span>
-          <span class="ping-status">✓ Confirmado</span>
+      <div class="sb-title">BLOCKCHAIN STATE</div>
+      <div class="chain-wrap" id="chain-wrap">
+        <div class="block-item b-active" id="block-1">
+          <div class="bi-header">
+            <span class="bi-n">BLK-1</span>
+            <span class="bi-status" id="bs-1">CONFIRMANDO</span>
+          </div>
+          <div class="bi-hash" id="bh-1">000000...a4f7b3c2</div>
+          <div class="bi-desc">90D · Amigos notificados</div>
         </div>
-        <div class="ping-item">
-          <span class="ping-date">14 Jan 2026</span>
-          <span class="ping-status">✓ Confirmado</span>
+        <div class="block-item" id="block-2">
+          <div class="bi-header">
+            <span class="bi-n">BLK-2</span>
+            <span class="bi-status" id="bs-2">PENDING</span>
+          </div>
+          <div class="bi-hash" id="bh-2">000000...pending</div>
+          <div class="bi-desc">180D · Cônjuge</div>
         </div>
-        <div class="ping-item">
-          <span class="ping-date">14 Out 2025</span>
-          <span class="ping-status">✓ Confirmado</span>
+        <div class="block-item" id="block-3">
+          <div class="bi-header">
+            <span class="bi-n">BLK-3</span>
+            <span class="bi-status" id="bs-3">PENDING</span>
+          </div>
+          <div class="bi-hash" id="bh-3">000000...pending</div>
+          <div class="bi-desc">365D · Advogado</div>
         </div>
-        <div class="ping-item">
-          <span class="ping-date">14 Jul 2025</span>
-          <span class="ping-status">✓ Confirmado</span>
-        </div>
-        <div class="ping-item">
-          <span class="ping-date">01 Abr 2025</span>
-          <span class="ping-status miss">✗ Perdido</span>
+        <div class="block-item" id="block-4">
+          <div class="bi-header">
+            <span class="bi-n">BLK-4</span>
+            <span class="bi-status" id="bs-4">PENDING</span>
+          </div>
+          <div class="bi-hash" id="bh-4">000000...pending</div>
+          <div class="bi-desc">730D · Herdeiros</div>
         </div>
       </div>
     </div>
 
     <div class="sb-block">
-      <div class="sb-title">Configuração do protocolo</div>
-      <div class="cfg-item"><span class="cfg-key">Frequência de ping</span><span class="cfg-val cyan">90 dias</span></div>
-      <div class="cfg-item"><span class="cfg-key">Email de confirmação</span><span class="cfg-val">Gmail principal</span></div>
-      <div class="cfg-item"><span class="cfg-key">Estágios configurados</span><span class="cfg-val green">4 de 4</span></div>
-      <div class="cfg-item"><span class="cfg-key">Próximo ping</span><span class="cfg-val amber">13 Jul 2026</span></div>
-      <div class="cfg-item"><span class="cfg-key">Integração Liana</span><span class="cfg-val green">Ativa ✓</span></div>
+      <div class="sb-title">TERMINAL LOG</div>
+      <div class="log-wrap" id="log-wrap">
+        <div class="log-item"><span class="log-ts">[init]</span><span class="log-info">protocol loaded</span></div>
+        <div class="log-item"><span class="log-ts">[sys]</span><span class="log-ok">owner: ALIVE</span></div>
+      </div>
     </div>
 
     <div class="sb-block">
-      <div class="sb-title">Opções</div>
-      <div class="toggle-row">
-        <span class="toggle-label">Ping por email</span>
-        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-      </div>
-      <div class="toggle-row">
-        <span class="toggle-label">Ping por SMS</span>
-        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-      </div>
-      <div class="toggle-row">
-        <span class="toggle-label">Notificar advogado</span>
-        <div class="toggle" onclick="this.classList.toggle('on')"></div>
-      </div>
-      <div class="toggle-row">
-        <span class="toggle-label">Modo silencioso</span>
-        <div class="toggle" onclick="this.classList.toggle('on')"></div>
-      </div>
-    </div>
-
-    <div class="alert-dms">
-      <strong>⚠ Atenção</strong>
-      Você tem 87 dias para confirmar sua presença. Se não confirmar até 13 Jul 2026, o Estágio 1 será disparado automaticamente.
+      <div class="sb-title">PROTOCOL STATUS</div>
+      <div class="cfg-row"><span class="cfg-k">TIMELOCK_INTERVAL</span><span class="cfg-v cv-btc" id="cfg-freq">90D</span></div>
+      <div class="cfg-row"><span class="cfg-k">CONFIRMS_COUNT</span><span class="cfg-v cv-green" id="cfg-confirms">0</span></div>
+      <div class="cfg-row"><span class="cfg-k">TRIGGERS_FIRED</span><span class="cfg-v" id="cfg-triggers">0/4</span></div>
+      <div class="cfg-row"><span class="cfg-k">LIANA_MULTISIG</span><span class="cfg-v cv-green">2-OF-2 ✓</span></div>
+      <div class="cfg-row"><span class="cfg-k">OWNER_STATUS</span><span class="cfg-v cv-green" id="cfg-status">ALIVE</span></div>
     </div>
 
   </div>
 </div>
 
 <footer>
-  <span>SentinelMail · Módulo BitLegacy · Protótipo v0.1</span>
-  <span>Dados locais · Zero custódia · Open source</span>
+  <span>SENTINELMAIL v0.3 · BITLEGACY PROTOCOL · BIP-65 · OP_CLTV</span>
+  <span class="footer-hash" id="footer-hash">hash: 000000...loading</span>
 </footer>
 
 <!-- MODAL -->
-<div class="overlay" id="overlay" onclick="closeModal(event)">
+<div class="overlay" id="overlay" onclick="fecharBg(event)">
   <div class="modal">
-    <div class="modal-title">◉ &nbsp;Confirmar presença</div>
-    <p class="modal-sub">Ao confirmar, o contador é reiniciado por mais 90 dias. O sistema registra sua confirmação com timestamp e não dispara nenhuma mensagem.</p>
+    <p class="modal-desc">VERIFICAÇÃO DE IDENTIDADE — Ao confirmar, o contador TIMELOCK é reiniciado por mais 90 dias. Nenhum gatilho será disparado.</p>
     <span class="modal-timer" id="modal-timer">03</span>
-    <span class="modal-timer-label">Aguarde para confirmar</span>
-    <button class="modal-btn" id="confirm-btn" onclick="confirmAlive()" disabled style="opacity:0.4; cursor:not-allowed">
-      ✓ &nbsp;Estou vivo — reiniciar contador
+    <span class="modal-label">AGUARDE PARA CONFIRMAR</span>
+    <button class="modal-confirm" id="modal-btn" onclick="confirmarVivo()" disabled>
+      [✓] OWNER ALIVE — RESET TIMELOCK
     </button>
-    <button class="modal-cancel" onclick="document.getElementById('overlay').classList.remove('open')">
-      Cancelar
-    </button>
+    <button class="modal-cancel" onclick="fecharModal()">[✗] CANCELAR</button>
   </div>
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast">✓ Presença confirmada — próximo ping em 90 dias</div>
+<div class="toast" id="toast"></div>
 
 <script>
-// Ring animation
+// ── MATRIX RAIN ──────────────────────────────────────────
+const canvas = document.getElementById('matrix-canvas');
+const ctx = canvas.getContext('2d');
+let drops = [];
+const chars = '01₿⛓∞SATOSHI0123456789abcdef';
+
+function initMatrix() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const cols = Math.floor(canvas.width / 14);
+  drops = Array(cols).fill(0).map(() => Math.random() * canvas.height / 14);
+}
+
+function drawMatrix() {
+  ctx.fillStyle = 'rgba(3,6,10,0.06)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#1a3a1a';
+  ctx.font = '12px Share Tech Mono';
+  drops.forEach((y, i) => {
+    const ch = chars[Math.floor(Math.random() * chars.length)];
+    ctx.fillText(ch, i * 14, y * 14);
+    if (y * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+    drops[i] += 0.4;
+  });
+}
+
+initMatrix();
+setInterval(drawMatrix, 60);
+window.addEventListener('resize', initMatrix);
+
+// ── BLOCK HEIGHT TICKER ──────────────────────────────────
+let blockH = 896241;
+setInterval(() => {
+  if (Math.random() > 0.85) {
+    blockH++;
+    document.getElementById('block-num').textContent = blockH.toLocaleString();
+    addLog('new block', 'info', blockH.toLocaleString());
+  }
+}, 8000);
+
+// ── HASH FOOTER ──────────────────────────────────────────
+function randHash(len) {
+  const h = '0123456789abcdef';
+  return Array(len).fill(0).map(() => h[Math.floor(Math.random()*16)]).join('');
+}
+setInterval(() => {
+  document.getElementById('footer-hash').textContent = 'hash: ' + randHash(16) + '...';
+}, 2000);
+
+// ── RING ─────────────────────────────────────────────────
+const CIRC = 2 * Math.PI * 80; // 502.65
+
 function updateRing(days, max) {
-  const circumference = 2 * Math.PI * 65;
-  const offset = circumference * (1 - days / max);
   const fill = document.getElementById('ring-fill');
+  const dEl = document.getElementById('ring-days');
+  const offset = CIRC * (1 - Math.max(days, 0) / max);
   fill.style.strokeDashoffset = offset;
-  if (days < 30) {
-    fill.style.stroke = 'var(--red)';
-    fill.style.filter = 'drop-shadow(0 0 4px rgba(255,58,58,0.5))';
-  } else if (days < 60) {
-    fill.style.stroke = 'var(--amber)';
-    fill.style.filter = 'drop-shadow(0 0 4px rgba(255,170,0,0.5))';
+
+  if (days <= 0) {
+    fill.style.stroke = '#ff2020';
+    fill.style.filter = 'drop-shadow(0 0 8px rgba(255,32,32,0.7))';
+    dEl.style.color = '#ff2020';
+    dEl.style.textShadow = '0 0 12px rgba(255,32,32,0.5)';
+  } else if (days <= 20) {
+    fill.style.stroke = '#ff4444';
+    fill.style.filter = 'drop-shadow(0 0 6px rgba(255,68,68,0.5))';
+    dEl.style.color = '#ff4444';
+  } else if (days <= 40) {
+    fill.style.stroke = '#ffaa00';
+    fill.style.filter = 'drop-shadow(0 0 6px rgba(255,170,0,0.5))';
+    dEl.style.color = '#ffaa00';
   } else {
-    fill.style.stroke = 'var(--cyan)';
-    fill.style.filter = 'drop-shadow(0 0 4px rgba(0,229,204,0.5))';
+    fill.style.stroke = '#f7931a';
+    fill.style.filter = 'drop-shadow(0 0 6px rgba(247,147,26,0.5))';
+    dEl.style.color = '#f7931a';
+    dEl.style.textShadow = '0 0 10px rgba(247,147,26,0.4)';
   }
 }
 
-let currentDays = 87;
-updateRing(currentDays, 90);
+updateRing(90, 90);
 
-// Toggle cards
-function toggleCard(n) {
-  const body = document.getElementById('body-' + n);
-  const card = document.getElementById('card-' + n);
-  body.classList.toggle('open');
+// ── LOG ───────────────────────────────────────────────────
+function addLog(msg, tipo, extra) {
+  const log = document.getElementById('log-wrap');
+  const ts = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const item = document.createElement('div');
+  item.className = 'log-item';
+  const cls = {ok:'log-ok',warn:'log-warn',err:'log-err',info:'log-info'}[tipo] || 'log-ok';
+  item.innerHTML = `<span class="log-ts">[${ts}]</span><span class="${cls}">${msg}${extra?' '+extra:''}</span>`;
+  log.insertBefore(item, log.firstChild);
+  if (log.children.length > 20) log.removeChild(log.lastChild);
 }
 
-// Modal countdown
+// ── TOAST ─────────────────────────────────────────────────
+function showToast(msg, tipo) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast t-${tipo} show`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── MODAL ─────────────────────────────────────────────────
 let modalTimer = null;
-let countdown = 3;
 
 function openModal() {
+  if (emSim) return;
   document.getElementById('overlay').classList.add('open');
-  countdown = 3;
-  document.getElementById('modal-timer').textContent = '0' + countdown;
-  document.getElementById('confirm-btn').disabled = true;
-  document.getElementById('confirm-btn').style.opacity = '0.4';
-  document.getElementById('confirm-btn').style.cursor = 'not-allowed';
+  let c = 3;
+  document.getElementById('modal-timer').textContent = '0' + c;
+  const btn = document.getElementById('modal-btn');
+  btn.disabled = true;
 
   modalTimer = setInterval(() => {
-    countdown--;
-    document.getElementById('modal-timer').textContent = countdown < 10 ? '0' + countdown : countdown;
-    if (countdown <= 0) {
+    c--;
+    document.getElementById('modal-timer').textContent = c < 10 ? '0' + c : c;
+    if (c <= 0) {
       clearInterval(modalTimer);
       document.getElementById('modal-timer').textContent = '✓';
-      document.getElementById('confirm-btn').disabled = false;
-      document.getElementById('confirm-btn').style.opacity = '1';
-      document.getElementById('confirm-btn').style.cursor = 'pointer';
+      btn.disabled = false;
     }
   }, 1000);
 }
 
-function closeModal(e) {
-  if (e.target === document.getElementById('overlay')) {
-    document.getElementById('overlay').classList.remove('open');
-    clearInterval(modalTimer);
+function fecharModal() {
+  document.getElementById('overlay').classList.remove('open');
+  clearInterval(modalTimer);
+}
+
+function fecharBg(e) {
+  if (e.target === document.getElementById('overlay')) fecharModal();
+}
+
+// ── ESTADO ────────────────────────────────────────────────
+let confirms = 0;
+let triggers = 0;
+let emSim = false;
+let simTO = null;
+let currentDays = 90;
+let idleTimer = null;
+let idlePaused = false;
+
+// ── ALERTA DE PRESENÇA ────────────────────────────────────
+function mostrarAlertaPresenca() {
+  // Pisca o ring e o label
+  const ring = document.getElementById('ring-fill');
+  const label = document.getElementById('ring-label');
+  const daysEl = document.getElementById('ring-days');
+  const pill = document.getElementById('status-pill');
+  const dot = document.getElementById('s-dot');
+  const txt = document.getElementById('s-text');
+  const hint = document.getElementById('sim-hint');
+
+  // Atualiza label e status
+  label.textContent = 'CONFIRME SUA PRESENÇA';
+  daysEl.textContent = '00';
+  daysEl.style.color = '#ff2020';
+  daysEl.style.textShadow = '0 0 16px rgba(255,32,32,0.8)';
+  ring.style.stroke = '#ff2020';
+  ring.style.filter = 'drop-shadow(0 0 10px rgba(255,32,32,0.7))';
+  ring.style.strokeDashoffset = '502';
+
+  dot.style.background = '#ff2020';
+  dot.style.boxShadow = '0 0 8px #ff2020';
+  txt.style.color = '#ff2020';
+  txt.textContent = 'CONFIRMAÇÃO NECESSÁRIA';
+  hint.textContent = '» ⚠ TIMELOCK EXPIRADO — CONFIRME SUA PRESENÇA PARA REINICIAR';
+
+  // Pisca o botão alive
+  const btnAlive = document.getElementById('btn-alive');
+  btnAlive.style.borderColor = '#ff2020';
+  btnAlive.style.color = '#ff2020';
+  btnAlive.style.boxShadow = '0 0 20px rgba(255,32,32,0.4)';
+  btnAlive.style.animation = 'btnPulse 0.8s ease-in-out infinite';
+
+  addLog('TIMELOCK EXPIRED', 'err');
+  addLog('owner confirmation required', 'warn');
+  showToast('[⚠] CONFIRME SUA PRESENÇA AGORA', 'amber');
+
+  // Injeta keyframe dinamicamente se não existir
+  if (!document.getElementById('btn-pulse-style')) {
+    const s = document.createElement('style');
+    s.id = 'btn-pulse-style';
+    s.textContent = '@keyframes btnPulse { 0%,100%{opacity:1;box-shadow:0 0 20px rgba(255,32,32,0.4)} 50%{opacity:0.5;box-shadow:0 0 4px rgba(255,32,32,0.1)} }';
+    document.head.appendChild(s);
+  }
+
+  idlePaused = true; // Para o idle timer enquanto espera confirmação
+}
+
+// ── IDLE COUNTDOWN (ao carregar) ──────────────────────────
+function iniciarIdleCountdown(from) {
+  if (emSim) return;
+  idlePaused = false;
+
+  // Desabilita ambos os botões durante a contagem
+  document.getElementById('btn-alive').disabled = true;
+  document.getElementById('btn-sim').disabled = true;
+  document.getElementById('sim-hint').textContent = '» AGUARDANDO EXPIRAÇÃO DO TIMELOCK...';
+
+  let d = from;
+  const MS_PER_DAY = 200;
+
+  idleTimer = setInterval(() => {
+    if (idlePaused || emSim) return;
+    d--;
+    if (d < 0) d = 0;
+    document.getElementById('ring-days').textContent = d;
+    updateRing(d, 90);
+
+    if (d === 60) addLog('timelock: 60 days remaining', 'info');
+    if (d === 30) addLog('timelock: 30 days remaining', 'warn');
+    if (d === 10) addLog('timelock: 10 days remaining — WARNING', 'warn');
+    if (d === 0) {
+      clearInterval(idleTimer);
+      // Habilita os botões ao chegar no zero
+      document.getElementById('btn-alive').disabled = false;
+      document.getElementById('btn-sim').disabled = false;
+      setTimeout(mostrarAlertaPresenca, 300);
+    }
+  }, MS_PER_DAY);
+}
+
+function confirmarVivo() {
+  fecharModal();
+  confirms++;
+  currentDays = 90;
+
+  // Reset visual
+  const daysEl = document.getElementById('ring-days');
+  const label = document.getElementById('ring-label');
+  const btnAlive = document.getElementById('btn-alive');
+  const dot = document.getElementById('s-dot');
+  const txt = document.getElementById('s-text');
+  const hint = document.getElementById('sim-hint');
+
+  daysEl.textContent = '90';
+  daysEl.style.color = '';
+  daysEl.style.textShadow = '';
+  label.textContent = 'DIAS ATÉ GATILHO';
+  updateRing(90, 90);
+
+  btnAlive.style.borderColor = '';
+  btnAlive.style.color = '';
+  btnAlive.style.boxShadow = '';
+  btnAlive.style.animation = '';
+
+  dot.style.background = '#00ff41';
+  dot.style.boxShadow = '0 0 6px #00ff41';
+  txt.style.color = '#00ff41';
+  txt.textContent = 'TITULAR VIVO';
+  hint.textContent = '» SIMULE O PROTOCOLO COMPLETO AO VIVO — CLIQUE EM [⚡] SIMULAR';
+
+  document.getElementById('cfg-confirms').textContent = confirms;
+  addLog('owner confirmed alive', 'ok');
+  addLog('timelock reset: +90D', 'info');
+  showToast('[✓] PRESENÇA CONFIRMADA · TIMELOCK RESET', 'green');
+
+  // Desabilita botões novamente e reinicia ciclo
+  document.getElementById('btn-alive').disabled = true;
+  document.getElementById('btn-sim').disabled = true;
+  if (!emSim) iniciarIdleCountdown(90);
+}
+
+function toggleCard(n) {
+  document.getElementById('body-' + n).classList.toggle('open');
+}
+
+// ── DISPARAR ESTÁGIO ──────────────────────────────────────
+function scrollParaCard(n) {
+  const card = document.getElementById('card-' + n);
+  if (card) {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 }
 
-function confirmAlive() {
-  document.getElementById('overlay').classList.remove('open');
-  currentDays = 90;
+function disparar(n) {
+  const card = document.getElementById('card-' + n);
+  const badge = document.getElementById('badge-' + n);
+  const email = document.getElementById('email-' + n);
+  const body = document.getElementById('body-' + n);
+  const cdEl = document.getElementById('countdown-' + n);
+  const blk = document.getElementById('block-' + n);
+  const bStatus = document.getElementById('bs-' + n);
+  const bHash = document.getElementById('bh-' + n);
+  const emBlk = document.getElementById('em-block-' + n);
+
+  body.classList.add('open');
+  cdEl.classList.remove('show');
+
+  card.className = 'msg-card triggered';
+  badge.className = 'msg-badge b-fire';
+  badge.textContent = '⚡ DISPARADO';
+
+  const h = randHash(8);
+  if (emBlk) emBlk.textContent = blockH.toLocaleString() + ' · ' + h;
+  email.classList.add('show');
+
+  if (blk) {
+    blk.className = 'block-item b-triggered';
+    if (bStatus) bStatus.textContent = 'EXECUTED';
+    if (bHash) bHash.textContent = '000000...' + randHash(8);
+  }
+
+  triggers++;
+  document.getElementById('cfg-triggers').textContent = triggers + '/4';
+
+  const msgs = ['','amigos notificados','cônjuge notificada','advogado ativado','herdeiros: final stage'];
+  addLog('TRIGGER-0' + n + ' fired', 'warn');
+  addLog(msgs[n] || 'stage ' + n, 'err');
+  showToast('[⚡] ESTÁGIO ' + n + ' DISPARADO · ' + (msgs[n]||'').toUpperCase(), 'amber');
+
+  if (triggers >= 2) {
+    document.getElementById('cfg-status').textContent = 'PROTOCOL ACTIVE';
+    document.getElementById('cfg-status').className = 'cfg-v cv-amber';
+    document.getElementById('s-dot').style.background = '#ffaa00';
+    document.getElementById('s-dot').style.boxShadow = '0 0 6px #ffaa00';
+    document.getElementById('s-text').style.color = '#ffaa00';
+    document.getElementById('s-text').textContent = 'PROTOCOL ACTIVE';
+  }
+
+  // Ativa próximo card
+  if (n < 4) {
+    const nc = document.getElementById('card-' + (n+1));
+    const nb = document.getElementById('badge-' + (n+1));
+    const nblk = document.getElementById('block-' + (n+1));
+    if (nc) nc.classList.add('active');
+    if (nb) { nb.className = 'msg-badge b-next'; nb.textContent = 'PRÓXIMO'; }
+    if (nblk) {
+      nblk.className = 'block-item b-active';
+      document.getElementById('bs-'+(n+1)).textContent = 'CONFIRMANDO';
+    }
+  }
+}
+
+// ── CONTAGEM ──────────────────────────────────────────────
+function contagem(de, ate, ms, cb) {
+  const steps = Math.abs(de - ate);
+  const iv = ms / steps;
+  let cur = de;
+  const t = setInterval(() => {
+    cur--;
+    if (cur < ate) cur = ate;
+    document.getElementById('ring-days').textContent = cur;
+    updateRing(cur, 90);
+    if (cur <= ate) { clearInterval(t); setTimeout(cb, 200); }
+  }, iv);
+}
+
+function contagem_card(n, secs, cb) {
+  // Rola para o card antes de começar o countdown
+  scrollParaCard(n);
+
+  const el = document.getElementById('countdown-' + n);
+  const body = document.getElementById('body-' + n);
+  body.classList.add('open');
+  el.classList.add('show');
+  let s = secs;
+  el.textContent = `» FIRING IN ${s}s`;
+  addLog('trigger-0' + n + ' countdown: ' + s, 'warn');
+  const t = setInterval(() => {
+    s--;
+    el.textContent = s > 0 ? `» FIRING IN ${s}s` : '» EXECUTING...';
+    if (s <= 0) { clearInterval(t); setTimeout(cb, 500); }
+  }, 1000);
+}
+
+// ── SIMULAÇÃO ─────────────────────────────────────────────
+function iniciarSimulacao() {
+  if (emSim) return;
+  emSim = true;
+  idlePaused = true;
+  if (idleTimer) clearInterval(idleTimer);
+
+  // Reset visual caso esteja em alerta
+  const daysEl = document.getElementById('ring-days');
+  const btnAlive = document.getElementById('btn-alive');
+  daysEl.style.color = '';
+  daysEl.style.textShadow = '';
+  btnAlive.style.animation = '';
+  btnAlive.style.borderColor = '';
+  btnAlive.style.color = '';
+  btnAlive.style.boxShadow = '';
+
+  document.getElementById('btn-alive').disabled = true;
+  document.getElementById('btn-sim').disabled = true;
+  document.getElementById('sim-hint').textContent = '» PROTOCOLO EM EXECUÇÃO — AGUARDE TODOS OS ESTÁGIOS';
+  addLog('simulation started', 'info');
+  addLog('owner non-responsive', 'warn');
+
+  // Rola para o ring/hero para ver a contagem
+  document.querySelector('.ring-wrap').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  const lbl = document.getElementById('ring-label');
+
+  // Estágio 1
+  lbl.textContent = 'DIAS ATÉ GATILHO 1';
+  contagem(90, 0, 90, () => {
+    lbl.textContent = 'TIMELOCK EXPIRADO';
+    addLog('timelock-1 expired', 'err');
+    contagem_card(1, 3, () => {
+      disparar(1);
+      simTO = setTimeout(() => {
+        document.getElementById('ring-days').textContent = '90';
+        lbl.textContent = 'DIAS ATÉ GATILHO 2';
+        updateRing(90, 90);
+        document.getElementById('cfg-freq').textContent = '180D';
+
+        // Estágio 2
+        contagem(90, 0, 90, () => {
+          lbl.textContent = 'TIMELOCK EXPIRADO';
+          addLog('timelock-2 expired', 'err');
+          contagem_card(2, 3, () => {
+            disparar(2);
+            simTO = setTimeout(() => {
+              document.getElementById('ring-days').textContent = '90';
+              lbl.textContent = 'DIAS ATÉ GATILHO 3';
+              updateRing(90, 90);
+              document.getElementById('cfg-freq').textContent = '365D';
+
+              // Estágio 3
+              contagem(90, 0, 90, () => {
+                lbl.textContent = 'TIMELOCK EXPIRADO';
+                addLog('timelock-3 expired', 'err');
+                contagem_card(3, 3, () => {
+                  disparar(3);
+                  simTO = setTimeout(() => {
+                    document.getElementById('ring-days').textContent = '90';
+                    lbl.textContent = 'DIAS ATÉ GATILHO 4';
+                    updateRing(90, 90);
+                    document.getElementById('cfg-freq').textContent = '730D';
+
+                    // Estágio 4
+                    contagem(90, 0, 90, () => {
+                      lbl.textContent = 'PROTOCOL COMPLETE';
+                      addLog('timelock-4 expired', 'err');
+                      contagem_card(4, 3, () => {
+                        disparar(4);
+
+                        // FIM
+                        setTimeout(() => {
+                          document.getElementById('cfg-status').textContent = 'PROTOCOL COMPLETE';
+                          document.getElementById('cfg-status').className = 'cfg-v cv-red';
+                          document.getElementById('s-dot').style.background = '#ff2020';
+                          document.getElementById('s-dot').style.boxShadow = '0 0 6px #ff2020';
+                          document.getElementById('s-text').style.color = '#ff2020';
+                          document.getElementById('s-text').textContent = 'PROTOCOL COMPLETE';
+                          document.getElementById('sim-hint').textContent = '» PROTOCOLO COMPLETO · [↺] REINICIAR PARA NOVA DEMO';
+                          addLog('all stages executed', 'ok');
+                          addLog('legacy transferred', 'ok');
+                          showToast('[✓] PROTOCOLO COMPLETO · LEGADO TRANSFERIDO', 'green');
+                          emSim = false;
+                        }, 1500);
+                      });
+                    });
+                  }, 2000);
+                });
+              });
+            }, 2000);
+          });
+        });
+      }, 2000);
+    });
+  });
+}
+
+// ── RESET ─────────────────────────────────────────────────
+function resetarTudo() {
+  if (simTO) clearTimeout(simTO);
+  emSim = false; confirms = 0; triggers = 0; currentDays = 90;
+
   document.getElementById('ring-days').textContent = '90';
+  document.getElementById('ring-label').textContent = 'DIAS ATÉ GATILHO';
   updateRing(90, 90);
 
-  // Show toast
-  const toast = document.getElementById('toast');
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3000);
+  [1,2,3,4].forEach(n => {
+    document.getElementById('card-' + n).className = 'msg-card' + (n===1?' active':'');
+    document.getElementById('body-' + n).className = 'msg-body' + (n===1?' open':'');
+    document.getElementById('email-' + n).classList.remove('show');
+    document.getElementById('countdown-' + n).classList.remove('show');
 
-  // Add to log
-  const log = document.querySelector('.ping-log');
-  const today = new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'short', year:'numeric'});
-  const item = document.createElement('div');
-  item.className = 'ping-item';
-  item.innerHTML = `<span class="ping-date">${today}</span><span class="ping-status">✓ Confirmado</span>`;
-  log.insertBefore(item, log.firstChild);
+    const badges = ['','b-next','b-wait','b-wait','b-wait'];
+    const btexts = ['','PRÓXIMO','AGUARDANDO','AGUARDANDO','AGUARDANDO'];
+    const b = document.getElementById('badge-' + n);
+    b.className = 'msg-badge ' + badges[n];
+    b.textContent = btexts[n];
 
-  // Simulate countdown
+    const blk = document.getElementById('block-' + n);
+    if (blk) {
+      blk.className = 'block-item' + (n===1?' b-active':'');
+      document.getElementById('bs-'+n).textContent = n===1?'CONFIRMANDO':'PENDING';
+      document.getElementById('bh-'+n).textContent = n===1?'000000...a4f7b3c2':'000000...pending';
+    }
+  });
+
+  document.getElementById('cfg-confirms').textContent = '0';
+  document.getElementById('cfg-triggers').textContent = '0/4';
+  document.getElementById('cfg-freq').textContent = '90D';
+  document.getElementById('cfg-status').textContent = 'ALIVE';
+  document.getElementById('cfg-status').className = 'cfg-v cv-green';
+  document.getElementById('s-dot').style.background = '#00ff41';
+  document.getElementById('s-dot').style.boxShadow = '0 0 6px #00ff41';
+  document.getElementById('s-text').style.color = '#00ff41';
+  document.getElementById('s-text').textContent = 'TITULAR VIVO';
+  document.getElementById('btn-alive').disabled = true;
+  document.getElementById('btn-sim').disabled = true;
+  document.getElementById('sim-hint').textContent = '» AGUARDANDO EXPIRAÇÃO DO TIMELOCK...';
+
+  document.getElementById('log-wrap').innerHTML = '<div class="log-item"><span class="log-ts">[reset]</span><span class="log-ok">system reset · owner: ALIVE</span></div>';
+  showToast('[↺] SISTEMA REINICIADO', 'green');
+
+  // Volta ao topo
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Reinicia idle countdown
+  setTimeout(() => iniciarIdleCountdown(90), 500);
+}
+
+// ── INIT: inicia countdown ao carregar ────────────────────
+window.addEventListener('load', () => {
   setTimeout(() => {
-    let d = 90;
-    const tick = setInterval(() => {
-      d--;
-      document.getElementById('ring-days').textContent = d;
-      updateRing(d, 90);
-      if (d <= 0) clearInterval(tick);
-    }, 30);
-  }, 500);
-}
-
-function addStage() {
-  const n = document.querySelectorAll('.msg-card').length + 1;
-  const card = document.createElement('div');
-  card.className = 'msg-card';
-  card.id = 'card-' + n;
-  card.innerHTML = `
-    <div class="msg-header" onclick="toggleCard(${n})">
-      <div class="msg-left">
-        <div class="msg-step">${n}</div>
-        <div class="msg-info">
-          <div class="msg-delay">Novo estágio</div>
-          <div class="msg-recipient">→ Destinatário não definido</div>
-        </div>
-      </div>
-      <span class="msg-badge badge-wait">Rascunho</span>
-    </div>
-    <div class="msg-body open" id="body-${n}">
-      <div class="msg-subject">Assunto: [Definir assunto]</div>
-      <div class="msg-preview" style="color:var(--muted2); font-style:normal; font-size:11px">Clique em "Editar mensagem" para configurar este estágio.</div>
-      <div class="msg-actions">
-        <button class="mini-btn primary">✎ Editar mensagem</button>
-        <button class="mini-btn">+ Destinatário</button>
-        <button class="mini-btn">⏱ Alterar prazo</button>
-      </div>
-    </div>
-  `;
-  document.getElementById('timeline').appendChild(card);
-}
-
-function addRecipient(n) {
-  alert('Em produção: abre modal para adicionar destinatário com nome, email e nível de acesso às informações.');
-}
+    addLog('sentinel protocol active', 'ok');
+    addLog('idle countdown started', 'info');
+    iniciarIdleCountdown(90);
+  }, 1200);
+});
 </script>
 </body>
 </html>
