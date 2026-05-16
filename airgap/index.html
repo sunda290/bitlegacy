@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AirGap v0.1 · BitLegacy · Configuração Offline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400.1.0;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;
+  --bg-2:#111111;
+  --bg-3:#1a1a1a;
+  --ink:#e8e6e1;
+  --ink-2:#a8a59e;
+  --ink-3:#5a5852;
+  --orange:#f7931a;
+  --orange-dim:#a85f0e;
+  --orange-glow:rgba(247,147,26,.15);
+  --green:#00ff88;
+  --green-dim:#008844;
+  --red:#ff3344;
+  --red-dim:#882028;
+  --border:#222;
+  --border-2:#333;
+  --grid:rgba(247,147,26,.04);
+}
+
+html,body{height:100%}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;
+  line-height:1.6;
+  overflow-x:hidden;
+  background-image:
+    linear-gradient(var(--grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:40px 40px;
+  background-position:-1px -1px;
+}
+
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:radial-gradient(ellipse at top right,var(--orange-glow) 0%,transparent 50%);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* SCANLINE EFFECT */
+body::after{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,0) 0px,
+    rgba(0,0,0,0) 2px,
+    rgba(0,0,0,.03) 3px,
+    rgba(0,0,0,.03) 4px
+  );
+  pointer-events:none;
+  z-index:9999;
+  mix-blend-mode:multiply;
+}
+
+.wrap{
+  position:relative;
+  z-index:1;
+  max-width:920px;
+  margin:0 auto;
+  padding:0 24px 80px;
+}
+
+/* TOP BAR */
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px 0;
+  border-bottom:1px solid var(--border);
+  margin-bottom:32px;
+  font-size:10px;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  flex-wrap:wrap;
+  gap:10px;
+}
+.brand{
+  color:var(--orange);
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.brand::before{
+  content:'₿';
+  font-size:18px;
+  font-family:'Space Mono',monospace;
+}
+.tb-meta{color:var(--ink-3);display:flex;gap:18px;flex-wrap:wrap}
+.tb-meta span b{color:var(--ink-2);font-weight:400}
+
+/* HEADER */
+.header{
+  margin-bottom:42px;
+  position:relative;
+}
+.header-eyebrow{
+  font-size:10px;
+  letter-spacing:.3em;
+  text-transform:uppercase;
+  color:var(--orange);
+  margin-bottom:18px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.header-eyebrow::before,.header-eyebrow::after{
+  content:'';
+  height:1px;
+  background:var(--orange-dim);
+}
+.header-eyebrow::before{width:32px;background:var(--orange)}
+.header-eyebrow::after{flex:1;opacity:.3}
+
+h1{
+  font-family:'Space Mono',monospace;
+  font-size:clamp(34px,5.5vw,58px);
+  font-weight:700;
+  line-height:.95;
+  letter-spacing:-.02em;
+  margin-bottom:18px;
+}
+h1 .accent{color:var(--orange)}
+h1 .strike{
+  display:inline-block;
+  position:relative;
+}
+h1 .strike::after{
+  content:'';
+  position:absolute;
+  left:-4px;
+  right:-4px;
+  top:50%;
+  height:3px;
+  background:var(--orange);
+  transform:rotate(-2deg);
+}
+
+.subtitle{
+  font-size:13px;
+  color:var(--ink-2);
+  max-width:580px;
+  line-height:1.75;
+}
+
+/* TOGGLE BAR */
+.controls{
+  display:flex;
+  gap:14px;
+  margin:32px 0 24px;
+  padding:14px 18px;
+  background:var(--bg-2);
+  border:1px solid var(--border);
+  border-left:3px solid var(--orange);
+  flex-wrap:wrap;
+  align-items:center;
+}
+.control-label{
+  font-size:10px;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+.toggle{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  cursor:pointer;
+  user-select:none;
+  font-size:11px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.toggle input{display:none}
+.toggle-track{
+  width:36px;
+  height:18px;
+  background:var(--bg-3);
+  border:1px solid var(--border-2);
+  border-radius:0;
+  position:relative;
+  transition:all .2s;
+}
+.toggle-track::after{
+  content:'';
+  position:absolute;
+  top:1px;
+  left:1px;
+  width:14px;
+  height:14px;
+  background:var(--ink-3);
+  transition:all .2s;
+}
+.toggle input:checked + .toggle-track{
+  background:var(--orange-glow);
+  border-color:var(--orange);
+}
+.toggle input:checked + .toggle-track::after{
+  left:19px;
+  background:var(--orange);
+  box-shadow:0 0 8px var(--orange);
+}
+.toggle-state{
+  color:var(--ink-3);
+  font-weight:400;
+}
+.toggle input:checked ~ .toggle-state{
+  color:var(--orange);
+}
+
+.divider{
+  width:1px;
+  height:24px;
+  background:var(--border-2);
+  margin:0 6px;
+}
+
+/* NETWORK MONITOR */
+.netmon{
+  margin-left:auto;
+  display:flex;
+  gap:14px;
+  align-items:center;
+  padding:6px 12px;
+  background:var(--bg);
+  border:1px solid var(--border-2);
+  font-size:10px;
+  letter-spacing:.1em;
+}
+.netmon-status{
+  display:inline-block;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 8px var(--green);
+  animation:pulse 2s ease-in-out infinite;
+}
+.netmon.offline .netmon-status{background:var(--red);box-shadow:0 0 8px var(--red)}
+.netmon-data{color:var(--ink-2)}
+.netmon-data b{color:var(--orange);font-weight:700}
+
+@keyframes pulse{
+  0%,100%{opacity:1}
+  50%{opacity:.4}
+}
+
+/* STEP NAVIGATION */
+.stepnav{
+  display:flex;
+  gap:0;
+  margin-bottom:24px;
+  border:1px solid var(--border-2);
+  background:var(--bg-2);
+  overflow-x:auto;
+}
+.stepnav-item{
+  flex:1;
+  min-width:100px;
+  padding:11px 8px;
+  text-align:center;
+  font-size:10px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  cursor:pointer;
+  border-right:1px solid var(--border);
+  transition:all .15s;
+  background:none;
+  border-top:none;
+  border-bottom:none;
+  border-left:none;
+  font-family:'JetBrains Mono',monospace;
+  position:relative;
+}
+.stepnav-item:last-child{border-right:none}
+.stepnav-item:hover{color:var(--ink-2);background:var(--bg-3)}
+.stepnav-item.done{color:var(--green-dim)}
+.stepnav-item.done::before{
+  content:'✓ ';
+}
+.stepnav-item.current{
+  color:var(--orange);
+  background:var(--bg-3);
+}
+.stepnav-item.current::after{
+  content:'';
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-1px;
+  height:2px;
+  background:var(--orange);
+}
+.stepnav-num{
+  display:block;
+  font-size:9px;
+  color:var(--ink-3);
+  margin-bottom:3px;
+}
+.stepnav-item.current .stepnav-num{color:var(--orange)}
+.stepnav-item.done .stepnav-num{color:var(--green-dim)}
+
+/* SCREEN */
+.screen{
+  background:var(--bg-2);
+  border:1px solid var(--border-2);
+  min-height:460px;
+  position:relative;
+  overflow:hidden;
+}
+.screen::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:3px;
+  background:linear-gradient(90deg,var(--orange) 0%,var(--orange) 30%,transparent 30%,transparent 35%,var(--orange) 35%,var(--orange) 38%,transparent 38%);
+}
+
+.screen-bar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 18px;
+  border-bottom:1px solid var(--border);
+  background:var(--bg);
+  font-size:10px;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+.screen-bar .dot{
+  display:inline-block;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  margin-right:6px;
+  background:var(--orange);
+}
+
+.screen-body{
+  padding:36px 36px 28px;
+  min-height:380px;
+  display:flex;
+  flex-direction:column;
+}
+
+.screen-eyebrow{
+  font-size:10px;
+  letter-spacing:.3em;
+  text-transform:uppercase;
+  color:var(--orange);
+  margin-bottom:10px;
+}
+
+.screen-title{
+  font-family:'Space Mono',monospace;
+  font-size:30px;
+  font-weight:700;
+  line-height:1.1;
+  margin-bottom:16px;
+  letter-spacing:-.01em;
+}
+
+.screen-desc{
+  font-size:13px;
+  color:var(--ink-2);
+  line-height:1.75;
+  margin-bottom:28px;
+  max-width:560px;
+}
+
+.screen-actions{
+  margin-top:auto;
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+/* BUTTON */
+.btn{
+  padding:13px 22px;
+  border:1px solid var(--orange);
+  background:transparent;
+  color:var(--orange);
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  font-weight:500;
+  cursor:pointer;
+  transition:all .15s;
+  position:relative;
+  overflow:hidden;
+}
+.btn:hover{
+  background:var(--orange);
+  color:var(--bg);
+  box-shadow:0 0 20px var(--orange-glow);
+}
+.btn::before{
+  content:'';
+  position:absolute;
+  top:0;left:-100%;
+  width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);
+  transition:left .4s;
+}
+.btn:hover::before{left:100%}
+.btn-secondary{
+  border-color:var(--border-2);
+  color:var(--ink-2);
+}
+.btn-secondary:hover{
+  background:var(--bg-3);
+  color:var(--ink);
+  border-color:var(--ink-2);
+  box-shadow:none;
+}
+.btn-ghost{
+  border:1px dashed var(--border-2);
+  color:var(--ink-3);
+}
+.btn-ghost:hover{
+  border-style:solid;
+  border-color:var(--ink-2);
+  color:var(--ink-2);
+  background:transparent;
+  box-shadow:none;
+}
+
+/* FIELDS */
+.field{
+  margin-bottom:20px;
+}
+.field-label{
+  display:block;
+  font-size:10px;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  margin-bottom:8px;
+}
+.field-input{
+  width:100%;
+  background:var(--bg);
+  border:1px solid var(--border-2);
+  color:var(--ink);
+  padding:11px 14px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;
+  outline:none;
+  transition:all .15s;
+}
+.field-input:focus{
+  border-color:var(--orange);
+  box-shadow:0 0 0 1px var(--orange-glow);
+}
+.field-input::placeholder{color:var(--ink-3)}
+.field-hint{
+  font-size:10px;
+  color:var(--ink-3);
+  margin-top:6px;
+  letter-spacing:.05em;
+}
+
+/* PASSWORD STRENGTH */
+.pwd-strength{
+  display:flex;
+  gap:4px;
+  margin-top:8px;
+}
+.pwd-bar{
+  flex:1;
+  height:3px;
+  background:var(--bg-3);
+  border:1px solid var(--border);
+}
+.pwd-bar.on-1{background:var(--red);border-color:var(--red)}
+.pwd-bar.on-2{background:var(--orange-dim);border-color:var(--orange-dim)}
+.pwd-bar.on-3{background:var(--orange);border-color:var(--orange)}
+.pwd-bar.on-4{background:var(--green);border-color:var(--green)}
+
+/* HEIR LIST */
+.heir-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-bottom:18px;
+}
+.heir-card{
+  background:var(--bg);
+  border:1px solid var(--border-2);
+  padding:14px 16px;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:14px;
+  align-items:center;
+  position:relative;
+}
+.heir-card::before{
+  content:'';
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:2px;
+  background:var(--orange);
+}
+.heir-icon{
+  width:34px;
+  height:34px;
+  border:1px solid var(--orange);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--orange);
+  font-family:'Space Mono',monospace;
+  font-weight:700;
+  font-size:14px;
+}
+.heir-info{display:flex;flex-direction:column;gap:2px}
+.heir-name{font-size:13px;color:var(--ink);font-weight:500}
+.heir-detail{font-size:10px;color:var(--ink-3);letter-spacing:.05em}
+.heir-meta{
+  font-size:9px;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  color:var(--green);
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:2px;
+}
+
+.add-heir{
+  background:transparent;
+  border:1px dashed var(--border-2);
+  color:var(--ink-3);
+  padding:12px;
+  cursor:pointer;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  width:100%;
+  transition:all .15s;
+}
+.add-heir:hover{
+  border-color:var(--orange);
+  color:var(--orange);
+  border-style:solid;
+}
+
+/* CIPHER PROGRESS */
+.cipher{
+  margin:18px 0;
+  background:var(--bg);
+  border:1px solid var(--border-2);
+  padding:24px;
+}
+.cipher-label{
+  font-size:10px;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--orange);
+  margin-bottom:14px;
+  display:flex;
+  justify-content:space-between;
+}
+.cipher-bar{
+  width:100%;
+  height:6px;
+  background:var(--bg-3);
+  border:1px solid var(--border-2);
+  position:relative;
+  overflow:hidden;
+}
+.cipher-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--orange) 0%,var(--orange) 50%,#ffb84d 100%);
+  width:0%;
+  transition:width .1s linear;
+  box-shadow:0 0 12px var(--orange);
+}
+.cipher-fill::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);
+  animation:shimmer 1.2s linear infinite;
+}
+@keyframes shimmer{
+  from{transform:translateX(-100%)}
+  to{transform:translateX(200%)}
+}
+.cipher-stat{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+  margin-top:18px;
+  font-size:10px;
+  letter-spacing:.1em;
+}
+.cipher-stat > div{
+  padding:10px;
+  background:var(--bg-3);
+  border:1px solid var(--border);
+}
+.cipher-stat-label{
+  display:block;
+  color:var(--ink-3);
+  text-transform:uppercase;
+  margin-bottom:4px;
+  font-size:9px;
+  letter-spacing:.2em;
+}
+.cipher-stat-val{
+  display:block;
+  font-family:'Space Mono',monospace;
+  font-size:14px;
+  color:var(--orange);
+  font-weight:700;
+}
+
+.cipher-log{
+  margin-top:18px;
+  padding:14px;
+  background:#000;
+  border:1px solid var(--border);
+  font-size:11px;
+  font-family:'JetBrains Mono',monospace;
+  color:var(--green-dim);
+  height:120px;
+  overflow-y:auto;
+  line-height:1.55;
+}
+.cipher-log-line{
+  margin-bottom:3px;
+  opacity:0;
+  animation:logFade .3s forwards;
+}
+.cipher-log-line .ts{color:var(--ink-3)}
+.cipher-log-line .ok{color:var(--green)}
+.cipher-log-line .warn{color:var(--orange)}
+@keyframes logFade{
+  from{opacity:0;transform:translateX(-4px)}
+  to{opacity:1;transform:translateX(0)}
+}
+
+/* HASH DISPLAY */
+.hash{
+  background:#000;
+  border:1px solid var(--orange);
+  padding:14px 16px;
+  margin:18px 0;
+  position:relative;
+}
+.hash-label{
+  font-size:9px;
+  letter-spacing:.25em;
+  text-transform:uppercase;
+  color:var(--orange);
+  margin-bottom:6px;
+}
+.hash-value{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+  color:var(--ink);
+  word-break:break-all;
+  letter-spacing:.05em;
+}
+.hash-copy{
+  position:absolute;
+  top:12px;right:12px;
+  font-size:9px;
+  background:none;
+  border:1px solid var(--border-2);
+  color:var(--ink-3);
+  padding:3px 8px;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  cursor:pointer;
+  font-family:'JetBrains Mono',monospace;
+}
+.hash-copy:hover{color:var(--orange);border-color:var(--orange)}
+
+/* ALERT BANNERS */
+.alert{
+  padding:13px 16px;
+  margin-bottom:18px;
+  border:1px solid;
+  font-size:11px;
+  line-height:1.7;
+  letter-spacing:.02em;
+  position:relative;
+  padding-left:42px;
+}
+.alert::before{
+  position:absolute;
+  left:14px;
+  top:13px;
+  font-family:'Space Mono',monospace;
+  font-weight:700;
+}
+.alert-info{
+  background:rgba(247,147,26,.05);
+  border-color:var(--orange-dim);
+  color:var(--ink-2);
+}
+.alert-info::before{content:'⚠';color:var(--orange);font-size:14px}
+.alert-success{
+  background:rgba(0,255,136,.05);
+  border-color:var(--green-dim);
+  color:var(--ink-2);
+}
+.alert-success::before{content:'✓';color:var(--green);font-size:14px}
+.alert-danger{
+  background:rgba(255,51,68,.05);
+  border-color:var(--red-dim);
+  color:var(--ink-2);
+}
+.alert-danger::before{content:'!';color:var(--red);font-size:14px}
+.alert b{color:var(--ink);font-weight:500}
+
+/* TAILS MODE BADGE */
+.tails-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 10px;
+  background:#000;
+  border:1px solid var(--green);
+  color:var(--green);
+  font-size:9px;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  margin-left:8px;
+}
+.tails-badge::before{
+  content:'';
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 6px var(--green);
+}
+
+/* SUMMARY */
+.summary{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:14px;
+  margin:18px 0;
+}
+.sum-card{
+  padding:16px;
+  background:var(--bg);
+  border:1px solid var(--border-2);
+  border-left:2px solid var(--orange);
+}
+.sum-label{
+  font-size:9px;
+  letter-spacing:.25em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  margin-bottom:6px;
+}
+.sum-val{
+  font-family:'Space Mono',monospace;
+  font-size:20px;
+  color:var(--orange);
+  font-weight:700;
+  letter-spacing:-.02em;
+}
+.sum-unit{
+  font-size:11px;
+  color:var(--ink-3);
+  font-weight:400;
+  margin-left:4px;
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* DETAILS */
+details{
+  background:var(--bg);
+  border:1px solid var(--border-2);
+  padding:0;
+  margin-bottom:14px;
+}
+summary{
+  padding:12px 16px;
+  cursor:pointer;
+  font-size:10px;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--ink-2);
+  list-style:none;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+summary::after{
+  content:'+';
+  color:var(--orange);
+  font-family:'Space Mono',monospace;
+  font-size:18px;
+}
+details[open] summary::after{content:'−'}
+details[open] summary{border-bottom:1px solid var(--border)}
+.details-body{padding:14px 16px;color:var(--ink-2);font-size:12px;line-height:1.7}
+.details-body code{
+  background:var(--bg-3);
+  padding:1px 6px;
+  color:var(--orange);
+  font-size:11px;
+}
+
+/* FOOTER */
+.foot{
+  margin-top:36px;
+  padding-top:18px;
+  border-top:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  font-size:9px;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  flex-wrap:wrap;
+  gap:10px;
+}
+.foot a{color:var(--orange);text-decoration:none}
+.foot a:hover{text-decoration:underline}
+
+@media(max-width:680px){
+  .wrap{padding:0 16px 60px}
+  .screen-body{padding:24px 20px}
+  .screen-title{font-size:24px}
+  .topbar{font-size:9px;gap:6px}
+  .controls{flex-direction:column;align-items:stretch}
+  .netmon{margin-left:0;justify-content:center}
+  .stepnav{font-size:9px}
+  .stepnav-item{min-width:80px;padding:8px 4px}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="brand">AIRGAP v0.1</div>
+  <div class="tb-meta">
+    <span><b>NETWORK:</b> <span id="topNet">SECURE</span></span>
+    <span><b>MODE:</b> <span id="topMode">OFFLINE-TRUST</span></span>
+    <span><b>BUILD:</b> 2026.05.16</span>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-eyebrow">PROTÓTIPO V0.1 · AIRGAP · CONFIGURAÇÃO OFFLINE</div>
+  <h1>Configure seu cofre<br><span class="accent">offline.</span></h1>
+  <p class="subtitle">Módulo AirGap do BitLegacy. Sua senha gera a chave. A chave nunca toca a internet. O servidor armazena apenas bytes opacos que ele mesmo não consegue ler. Depois disso, o SentinelMail entra em ação como vigia silencioso.</p>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <span class="control-label">CONFIG:</span>
+
+  <label class="toggle">
+    <input type="checkbox" id="tailsToggle" onchange="toggleTails()">
+    <span class="toggle-track"></span>
+    <span>Tails Mode</span>
+    <span class="toggle-state" id="tailsState">OFF</span>
+  </label>
+
+  <div class="divider"></div>
+
+  <label class="toggle">
+    <input type="checkbox" id="simToggle" checked>
+    <span class="toggle-track"></span>
+    <span>Simulate Cipher</span>
+    <span class="toggle-state">ON</span>
+  </label>
+
+  <!-- NETWORK MONITOR -->
+  <div class="netmon" id="netmon">
+    <span class="netmon-status"></span>
+    <span class="netmon-data">BYTES SENT: <b id="bytesSent">0</b></span>
+    <span class="netmon-data">REQ: <b id="netReq">0</b></span>
+  </div>
+</div>
+
+<!-- STEP NAV -->
+<div class="stepnav" id="stepnav">
+  <button class="stepnav-item current" onclick="goStep(1)"><span class="stepnav-num">01</span>WELCOME</button>
+  <button class="stepnav-item" onclick="goStep(2)"><span class="stepnav-num">02</span>OFFLINE</button>
+  <button class="stepnav-item" onclick="goStep(3)"><span class="stepnav-num">03</span>SENHA</button>
+  <button class="stepnav-item" onclick="goStep(4)"><span class="stepnav-num">04</span>HERDEIROS</button>
+  <button class="stepnav-item" onclick="goStep(5)"><span class="stepnav-num">05</span>MENSAGENS</button>
+  <button class="stepnav-item" onclick="goStep(6)"><span class="stepnav-num">06</span>CIFRAR</button>
+  <button class="stepnav-item" onclick="goStep(7)"><span class="stepnav-num">07</span>TRANSMITIR</button>
+</div>
+
+<!-- SCREEN -->
+<div class="screen">
+  <div class="screen-bar">
+    <span><span class="dot"></span><span id="scrId">SM-01</span> · <span id="scrTitle">WELCOME</span></span>
+    <span id="scrMode">SECURE BOOT VERIFIED</span>
+  </div>
+  <div class="screen-body" id="screenBody">
+    <!-- conteúdo dinâmico -->
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="foot">
+  <span>AIRGAP · BITLEGACY PROTOCOL · BUILD 0.1.0</span>
+  <span>OPEN SOURCE · BIP-65 · BIP-174 · MIT LICENSE</span>
+</div>
+
+</div>
+
+<script>
+let currentStep = 1;
+let tailsMode = false;
+
+const screens = {
+  1: {
+    id:'AG-01',
+    title:'WELCOME',
+    mode:'SECURE BOOT VERIFIED',
+    body:`
+      <div class="screen-eyebrow">[ INIT ] · AIRGAP v0.1</div>
+      <div class="screen-title">Você está prestes a<br>criar um cofre de herança.</div>
+      <div class="screen-desc">
+        Este fluxo configura um Dead Man Switch criptografado para o seu Bitcoin. Em caso de inatividade prolongada, mensagens cifradas com instruções de herança serão liberadas aos seus herdeiros via SentinelMail.
+        <br><br>
+        <b style="color:var(--orange)">Antes de começar, vamos desconectar você da internet.</b> Tudo será configurado localmente, e só o resultado final, já cifrado, será transmitido ao servidor.
+      </div>
+
+      <div class="alert alert-info">
+        <b>FDE check:</b> Seu disco está criptografado (FileVault ativo). Bom. Senão, recomendaríamos parar aqui.
+      </div>
+
+      <div class="screen-actions">
+        <button class="btn" onclick="goStep(2)">[ INICIAR CONFIGURAÇÃO OFFLINE → ]</button>
+        <button class="btn-ghost btn" onclick="alert('Em produção: link para tutorial Wireshark + Tails')">SAIBA MAIS</button>
+      </div>
+    `
+  },
+
+  2: {
+    id:'AG-02',
+    title:'OFFLINE MODE',
+    mode:'NETWORK STACK FROZEN',
+    body:`
+      <div class="screen-eyebrow">[ OFFLINE ] · CONEXÃO SUSPENSA</div>
+      <div class="screen-title">Modo <span style="color:var(--orange)">offline-trust</span><br>ativado.</div>
+      <div class="screen-desc">
+        Durante esta sessão, o aplicativo <b style="color:var(--ink)">não fará nenhuma requisição de rede</b>. Você pode verificar com Wireshark, Little Snitch, ou pelo monitor no topo desta tela: o contador de bytes enviados deve permanecer em zero até você confirmar o upload no final.
+      </div>
+
+      <div class="cipher" style="border-color:var(--green-dim);background:rgba(0,255,136,.02)">
+        <div class="cipher-label" style="color:var(--green)">
+          <span>● NETWORK STATUS</span>
+          <span id="frozenStatus">FROZEN · 0.000 B/s</span>
+        </div>
+        <div class="cipher-log" style="height:90px">
+          <div class="cipher-log-line"><span class="ts">[00:00:00]</span> <span class="ok">▶</span> Suspending network stack...</div>
+          <div class="cipher-log-line" style="animation-delay:.2s"><span class="ts">[00:00:01]</span> <span class="ok">✓</span> All outbound sockets closed</div>
+          <div class="cipher-log-line" style="animation-delay:.4s"><span class="ts">[00:00:01]</span> <span class="ok">✓</span> DNS resolver disabled</div>
+          <div class="cipher-log-line" style="animation-delay:.6s"><span class="ts">[00:00:02]</span> <span class="ok">✓</span> Dependencies pre-loaded (12.4 MB)</div>
+          <div class="cipher-log-line" style="animation-delay:.8s"><span class="ts">[00:00:02]</span> <span class="ok">✓</span> Ready for secure configuration</div>
+        </div>
+      </div>
+
+      <div class="alert alert-success">
+        Você pode tirar a conexão de internet agora se quiser <b>verificação total</b>. Tudo abaixo funciona sem rede.
+      </div>
+
+      <div class="screen-actions">
+        <button class="btn" onclick="goStep(3)">[ CONTINUAR → ]</button>
+        <button class="btn-secondary btn" onclick="goStep(1)">← VOLTAR</button>
+      </div>
+    `
+  },
+
+  3: {
+    id:'AG-03',
+    title:'PASSWORD',
+    mode:'KEY DERIVATION READY',
+    body:`
+      <div class="screen-eyebrow">[ KEY ] · DERIVAÇÃO DA CHAVE MESTRA</div>
+      <div class="screen-title">Crie sua<br>senha mestra.</div>
+      <div class="screen-desc">
+        Esta senha vai derivar, via <b style="color:var(--orange)">Argon2id (m=64MB, t=3, p=1)</b>, a chave que cifra todo o seu cofre. Ninguém mais terá acesso a ela. Se você perder, ninguém recupera (nem nós).
+      </div>
+
+      <div class="field">
+        <label class="field-label">SENHA MESTRA <span style="color:var(--orange-dim)">(MÍN. 12 CHARS)</span></label>
+        <input type="password" class="field-input" id="pwd" oninput="updateStrength()" placeholder="••••••••••••••••" autocomplete="off">
+        <div class="pwd-strength">
+          <div class="pwd-bar" id="b1"></div>
+          <div class="pwd-bar" id="b2"></div>
+          <div class="pwd-bar" id="b3"></div>
+          <div class="pwd-bar" id="b4"></div>
+        </div>
+        <div class="field-hint" id="pwdHint">Comece a digitar para ver a força...</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">CONFIRMAR SENHA</label>
+        <input type="password" class="field-input" placeholder="••••••••••••••••" autocomplete="off">
+      </div>
+
+      <div class="alert alert-danger">
+        <b>Esta senha não pode ser recuperada.</b> Anote em local físico seguro. Se a perder, seus herdeiros vão precisar das chaves de recuperação deles para abrir o pacote.
+      </div>
+
+      <div class="screen-actions">
+        <button class="btn" onclick="goStep(4)">[ CONTINUAR → ]</button>
+        <button class="btn-secondary btn" onclick="goStep(2)">← VOLTAR</button>
+      </div>
+    `
+  },
+
+  4: {
+    id:'AG-04',
+    title:'HEIRS',
+    mode:'AGE PUBLIC KEYS CONFIGURED',
+    body:`
+      <div class="screen-eyebrow">[ HEIRS ] · CONFIGURAÇÃO DE HERDEIROS</div>
+      <div class="screen-title">Quem recebe<br>o quê.</div>
+      <div class="screen-desc">
+        Cada herdeiro tem uma chave pública <b style="color:var(--orange)">age</b> própria. Eles só conseguem decifrar o que você cifrar especificamente para eles. Você pode usar <b style="color:var(--ink)">Shamir SLIP-39 (2-of-3)</b> para dividir a chave em pedaços.
+      </div>
+
+      <div class="heir-list">
+        <div class="heir-card">
+          <div class="heir-icon">M</div>
+          <div class="heir-info">
+            <div class="heir-name">Maria Oliveira</div>
+            <div class="heir-detail">maria@protonmail.ch · age1qq2x...k3jf2</div>
+          </div>
+          <div class="heir-meta">
+            <span>● ATIVO</span>
+            <span style="color:var(--ink-3)">PARTE 1 + 2</span>
+          </div>
+        </div>
+
+        <div class="heir-card">
+          <div class="heir-icon">J</div>
+          <div class="heir-info">
+            <div class="heir-name">João Silva</div>
+            <div class="heir-detail">joao@tutanota.com · age1pf7n...x8w91</div>
+          </div>
+          <div class="heir-meta">
+            <span>● ATIVO</span>
+            <span style="color:var(--ink-3)">PARTE 2 (6 MESES)</span>
+          </div>
+        </div>
+
+        <div class="heir-card">
+          <div class="heir-icon">A</div>
+          <div class="heir-info">
+            <div class="heir-name">Advogado (Fernando)</div>
+            <div class="heir-detail">fernando@trustteles.law · age1mx9d...v2t44</div>
+          </div>
+          <div class="heir-meta">
+            <span>● ATIVO</span>
+            <span style="color:var(--ink-3)">PROTOCOLO 12M</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="add-heir">[ + ADICIONAR HERDEIRO ]</button>
+
+      <div class="screen-actions">
+        <button class="btn" onclick="goStep(5)">[ CONTINUAR → ]</button>
+        <button class="btn-secondary btn" onclick="goStep(3)">← VOLTAR</button>
+      </div>
+    `
+  },
+
+  5: {
+    id:'AG-05',
+    title:'MESSAGES',
+    mode:'ENCRYPTING IN MEMORY',
+    body:`
+      <div class="screen-eyebrow">[ MSG ] · MENSAGENS DE HERANÇA</div>
+      <div class="screen-title">Escreva suas<br>instruções.</div>
+      <div class="screen-desc">
+        As mensagens são cifradas individualmente para cada herdeiro. Os anexos (até 4MB) viram parte do pacote. Use linguagem clara, eles vão ler em um momento difícil.
+      </div>
+
+      <details open>
+        <summary>📋 PARTE 1 · MARIA · 3 MESES SEM ATIVIDADE</summary>
+        <div class="details-body">
+          Maria, se você está lendo isso, faz 3 meses que não acesso minha carteira. Por favor, verifique meu paradeiro. Tenta meu celular: <code>+1 905 XXX-XXXX</code>. Se não conseguir, prossiga conforme planejamos. O Bitcoin da carteira <code>Liana #1</code> está protegido por timelock CSV de 6 meses...
+        </div>
+      </details>
+
+      <details>
+        <summary>📋 PARTE 2 · MARIA · 6 MESES (CARTEIRA PRINCIPAL)</summary>
+        <div class="details-body">
+          Detalhes da semente, descritor Liana, instruções de recuperação...
+        </div>
+      </details>
+
+      <details>
+        <summary>📋 PROTOCOLO 12M · ADVOGADO FERNANDO</summary>
+        <div class="details-body">
+          Estrutura completa do inventário Bitcoin + orientação jurídica...
+        </div>
+      </details>
+
+      <div class="screen-actions">
+        <button class="btn" onclick="goStep(6)">[ REVISAR E CIFRAR → ]</button>
+        <button class="btn-secondary btn" onclick="goStep(4)">← VOLTAR</button>
+      </div>
+    `
+  },
+
+  6: {
+    id:'AG-06',
+    title:'CIPHER',
+    mode:'ARGON2ID · AGE · POST-QUANTUM',
+    body:`
+      <div class="screen-eyebrow">[ CIPHER ] · CRIPTOGRAFIA EM EXECUÇÃO</div>
+      <div class="screen-title">Cifrando<br>seu cofre.</div>
+      <div class="screen-desc">
+        Argon2id derivando a chave mestra a partir da sua senha. Depois, age (X25519 + ChaCha20-Poly1305 + ML-KEM-768) cifra o pacote para cada herdeiro. Tudo local. Nada sai daqui.
+      </div>
+
+      <div class="cipher">
+        <div class="cipher-label">
+          <span>● CIPHERING IN PROGRESS</span>
+          <span id="cipherPct">0%</span>
+        </div>
+        <div class="cipher-bar">
+          <div class="cipher-fill" id="cipherFill"></div>
+        </div>
+        <div class="cipher-stat">
+          <div>
+            <span class="cipher-stat-label">ARGON2ID</span>
+            <span class="cipher-stat-val" id="argonT">0ms</span>
+          </div>
+          <div>
+            <span class="cipher-stat-label">AGE BLOBS</span>
+            <span class="cipher-stat-val" id="ageBlobs">0/3</span>
+          </div>
+          <div>
+            <span class="cipher-stat-label">PAYLOAD</span>
+            <span class="cipher-stat-val" id="payload">0<span class="sum-unit">kb</span></span>
+          </div>
+        </div>
+        <div class="cipher-log" id="cipherLog"></div>
+      </div>
+
+      <div class="hash" id="hashBox" style="display:none">
+        <div class="hash-label">SEALED PACKAGE HASH (BLAKE3)</div>
+        <div class="hash-value">b3sum:7c4e9d3a1f8b2c5e6d9a4f2b8c1e5d3a9f7b4c2e8d6a1f5b9c3e7d2a4f8b6c1e</div>
+        <button class="hash-copy" onclick="alert('Copiado para clipboard (simulado)')">COPY</button>
+      </div>
+
+      <div class="screen-actions" id="cipherActions" style="display:none">
+        <button class="btn" onclick="goStep(7)">[ PRONTO PARA TRANSMITIR → ]</button>
+        <button class="btn-secondary btn" onclick="alert('Exportar como SD/QR (simulado)')">EXPORT TO SD/QR</button>
+      </div>
+    `
+  },
+
+  7: {
+    id:'AG-07',
+    title:'TRANSMIT',
+    mode:'READY TO RECONNECT',
+    body:`
+      <div class="screen-eyebrow">[ TRANSMIT ] · RECONECTAR E ENVIAR</div>
+      <div class="screen-title">Reconectar e<br>transmitir?</div>
+      <div class="screen-desc">
+        O pacote está cifrado. <b style="color:var(--ink)">O servidor armazenará apenas bytes opacos.</b> Ele não consegue ler nada, nem mesmo o número de herdeiros. Você pode confirmar antes de enviar, ou exportar via QR/SD para enviar em outro momento.
+      </div>
+
+      <div class="summary">
+        <div class="sum-card">
+          <div class="sum-label">HERDEIROS</div>
+          <div class="sum-val">3</div>
+        </div>
+        <div class="sum-card">
+          <div class="sum-label">MENSAGENS</div>
+          <div class="sum-val">3</div>
+        </div>
+        <div class="sum-card">
+          <div class="sum-label">PAYLOAD CIFRADO</div>
+          <div class="sum-val">847<span class="sum-unit">kb</span></div>
+        </div>
+        <div class="sum-card">
+          <div class="sum-label">CHAVE ENTROPY</div>
+          <div class="sum-val">256<span class="sum-unit">bit</span></div>
+        </div>
+      </div>
+
+      <div class="alert alert-info">
+        <b>O que o servidor vai ver:</b> um blob de 847KB de bytes aparentemente aleatórios. Sem metadata. Sem como abrir. Sem como saber quem você é. Se o servidor cair, basta replicar o blob para outro servidor.
+      </div>
+
+      <div class="screen-actions">
+        <button class="btn" onclick="simulateUpload()">[ RECONECTAR E ENVIAR → ]</button>
+        <button class="btn-secondary btn" onclick="alert('Salvar como arquivo .smb (sealed mail bundle)')">SALVAR ARQUIVO</button>
+        <button class="btn-ghost btn" onclick="alert('Exportar como 1.295 QR codes BBQr')">EXPORTAR BBQr</button>
+      </div>
+    `
+  }
+};
+
+function goStep(n){
+  currentStep = n;
+  const s = screens[n];
+  document.getElementById('scrId').textContent = s.id;
+  document.getElementById('scrTitle').textContent = s.title;
+  document.getElementById('scrMode').textContent = s.mode;
+  document.getElementById('screenBody').innerHTML = s.body;
+
+  // update step nav
+  document.querySelectorAll('.stepnav-item').forEach((el,i)=>{
+    el.classList.remove('current','done');
+    if(i+1 < n) el.classList.add('done');
+    if(i+1 === n) el.classList.add('current');
+  });
+
+  // se for tela 6, dispara cipher animation
+  if(n === 6 && document.getElementById('simToggle').checked){
+    setTimeout(runCipherSim, 400);
+  }
+
+  // rolar até o início da tela (não o topo da página)
+  // só rola se a tela não estiver totalmente visível
+  const screen = document.querySelector('.screen');
+  const rect = screen.getBoundingClientRect();
+  if(rect.top < 0 || rect.top > 120){
+    const targetY = window.scrollY + rect.top - 100;
+    window.scrollTo({top:targetY, behavior:'smooth'});
+  }
+}
+
+function toggleTails(){
+  tailsMode = document.getElementById('tailsToggle').checked;
+  document.getElementById('tailsState').textContent = tailsMode ? 'ON' : 'OFF';
+  document.getElementById('topMode').textContent = tailsMode ? 'TAILS-VERIFIED' : 'OFFLINE-TRUST';
+  if(tailsMode){
+    document.body.style.setProperty('--orange','#00ff88');
+    document.body.style.setProperty('--orange-dim','#008844');
+    document.body.style.setProperty('--orange-glow','rgba(0,255,136,.15)');
+    document.querySelector('.brand').innerHTML = '<span class="tails-badge">TAILS</span>AIRGAP v0.1';
+  } else {
+    document.body.style.setProperty('--orange','#f7931a');
+    document.body.style.setProperty('--orange-dim','#a85f0e');
+    document.body.style.setProperty('--orange-glow','rgba(247,147,26,.15)');
+    document.querySelector('.brand').textContent = 'AIRGAP v0.1';
+  }
+}
+
+function updateStrength(){
+  const v = document.getElementById('pwd').value;
+  const len = v.length;
+  let score = 0;
+  if(len >= 8) score++;
+  if(len >= 12) score++;
+  if(/[A-Z]/.test(v) && /[a-z]/.test(v) && /[0-9]/.test(v)) score++;
+  if(/[^A-Za-z0-9]/.test(v) && len >= 14) score++;
+
+  for(let i=1;i<=4;i++){
+    const el = document.getElementById('b'+i);
+    el.className = 'pwd-bar' + (i <= score ? ' on-'+score : '');
+  }
+
+  const hints = [
+    'Comece a digitar para ver a força...',
+    'Senha muito fraca · adicione mais caracteres',
+    'Razoável · adicione maiúsculas e números',
+    'Boa · adicione um símbolo para máxima força',
+    'Excelente · senha mestra forte detectada'
+  ];
+  document.getElementById('pwdHint').textContent = hints[score] || hints[0];
+}
+
+function runCipherSim(){
+  const fill = document.getElementById('cipherFill');
+  const pct = document.getElementById('cipherPct');
+  const argonT = document.getElementById('argonT');
+  const ageBlobs = document.getElementById('ageBlobs');
+  const payload = document.getElementById('payload');
+  const log = document.getElementById('cipherLog');
+  const hashBox = document.getElementById('hashBox');
+  const actions = document.getElementById('cipherActions');
+
+  if(!fill) return;
+
+  const logs = [
+    {t:'00:00:00',msg:'Initializing Argon2id...',type:'ts'},
+    {t:'00:00:00',msg:'Memory cost: 64 MiB · Iterations: 3 · Parallelism: 1',type:'ts'},
+    {t:'00:00:01',msg:'Deriving master key from password...',type:'ts'},
+    {t:'00:00:01',msg:'Master key derived ✓',type:'ok'},
+    {t:'00:00:01',msg:'Loading age (X25519 + ChaCha20-Poly1305)...',type:'ts'},
+    {t:'00:00:01',msg:'Post-quantum hybrid enabled (ML-KEM-768) ✓',type:'ok'},
+    {t:'00:00:02',msg:'Encrypting blob 1/3 · recipient: maria@protonmail.ch',type:'ts'},
+    {t:'00:00:02',msg:'Blob 1 sealed (267 KB) ✓',type:'ok'},
+    {t:'00:00:02',msg:'Encrypting blob 2/3 · recipient: joao@tutanota.com',type:'ts'},
+    {t:'00:00:03',msg:'Blob 2 sealed (310 KB) ✓',type:'ok'},
+    {t:'00:00:03',msg:'Encrypting blob 3/3 · recipient: fernando@trustteles.law',type:'ts'},
+    {t:'00:00:03',msg:'Blob 3 sealed (270 KB) ✓',type:'ok'},
+    {t:'00:00:04',msg:'Computing BLAKE3 hash of sealed package...',type:'ts'},
+    {t:'00:00:04',msg:'Package ready for transmission ✓',type:'ok'},
+  ];
+
+  let pctVal = 0;
+  let logIdx = 0;
+  let argonMs = 0;
+
+  const start = Date.now();
+  const interval = setInterval(()=>{
+    pctVal += 1.5;
+    if(pctVal > 100) pctVal = 100;
+    fill.style.width = pctVal + '%';
+    pct.textContent = Math.round(pctVal) + '%';
+
+    argonMs = Math.min(287, Math.round((Date.now() - start) / 12));
+    argonT.textContent = argonMs + 'ms';
+
+    if(pctVal > 35 && pctVal < 60) ageBlobs.textContent = '1/3';
+    else if(pctVal >= 60 && pctVal < 85) ageBlobs.textContent = '2/3';
+    else if(pctVal >= 85) ageBlobs.textContent = '3/3';
+
+    payload.innerHTML = Math.round(pctVal * 8.47) + '<span class="sum-unit">kb</span>';
+
+    // log streaming
+    if(logIdx < logs.length && pctVal > (logIdx / logs.length) * 100){
+      const l = logs[logIdx];
+      const cls = l.type === 'ok' ? 'ok' : (l.type === 'warn' ? 'warn' : 'ts');
+      const line = document.createElement('div');
+      line.className = 'cipher-log-line';
+      line.innerHTML = `<span class="ts">[${l.t}]</span> <span class="${cls}">${l.type === 'ok' ? '✓' : '▶'}</span> ${l.msg}`;
+      log.appendChild(line);
+      log.scrollTop = log.scrollHeight;
+      logIdx++;
+    }
+
+    if(pctVal >= 100){
+      clearInterval(interval);
+      setTimeout(()=>{
+        hashBox.style.display = 'block';
+        actions.style.display = 'flex';
+        document.getElementById('cipherPct').textContent = '✓ DONE';
+        document.getElementById('cipherPct').style.color = 'var(--green)';
+      }, 500);
+    }
+  }, 60);
+}
+
+function simulateUpload(){
+  document.getElementById('topNet').textContent = 'TRANSMITTING';
+  document.getElementById('topNet').style.color = 'var(--orange)';
+
+  let sent = 0;
+  let req = 0;
+  const target = 847;
+  const interval = setInterval(()=>{
+    sent += Math.round(target / 20);
+    req = Math.min(3, Math.round(sent / (target/3)));
+    if(sent > target) sent = target;
+
+    document.getElementById('bytesSent').textContent = sent.toLocaleString();
+    document.getElementById('netReq').textContent = req;
+
+    if(sent >= target){
+      clearInterval(interval);
+      document.getElementById('topNet').textContent = 'TRANSMITTED ✓';
+      document.getElementById('topNet').style.color = 'var(--green)';
+      setTimeout(()=>{
+        alert('✓ Pacote transmitido com sucesso\n\n• 3 servidores em 3 jurisdições\n• Replicação confirmada\n• Hash verificado\n\n(simulação)');
+      }, 500);
+    }
+  }, 100);
+}
+
+// inicia
+goStep(1);
+</script>
+
+</body>
+</html>
